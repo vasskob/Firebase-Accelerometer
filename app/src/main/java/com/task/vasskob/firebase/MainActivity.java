@@ -17,6 +17,7 @@ import android.view.View;
 import com.google.firebase.auth.FirebaseAuth;
 import com.task.vasskob.firebase.fragment.ChartFragment;
 import com.task.vasskob.firebase.fragment.ListFragment;
+import com.task.vasskob.firebase.fragment.ResentDataFragment;
 import com.task.vasskob.firebase.fragment.TimePickerFragment;
 import com.task.vasskob.firebase.service.AccelerometerService;
 
@@ -50,7 +51,7 @@ public class MainActivity extends BaseActivity {
         // Create the adapter that will return a fragment for each section
         FragmentPagerAdapter mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             private final Fragment[] mFragments = new Fragment[]{
-                    new ListFragment(),
+                    new ResentDataFragment(),
                     new ChartFragment(),
             };
             private final String[] mFragmentNames = new String[]{
@@ -95,7 +96,6 @@ public class MainActivity extends BaseActivity {
                     fab.setImageResource(R.drawable.ic_stop);
                     isRunning = true;
                 } else {
-                    //// TODO: 30.03.17  STOP service
                     MainActivity.this.stopService(new Intent(MainActivity.this,
                             AccelerometerService.class));
                     fab.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, R.color.colorAccent));

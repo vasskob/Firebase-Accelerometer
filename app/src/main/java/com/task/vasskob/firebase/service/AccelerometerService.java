@@ -27,17 +27,13 @@ import java.util.Map;
 
 public class AccelerometerService extends Service implements SensorEventListener {
 
-
-    double ax, ay, az;
     private SensorManager sensorManager;
     private DatabaseReference mDatabase;
     private String userId;
-    private String startTime;
 
     int interval;
     int duration;
     private String timeStamp;
-    private String stringCoord;
 
     @Override
     public void onCreate() {
@@ -66,7 +62,7 @@ public class AccelerometerService extends Service implements SensorEventListener
     private void initOptions(Bundle extras) {
         if (extras != null) {
             interval = extras.getInt(Constants.INTERVAL_KEY);
-            startTime = extras.getString(Constants.START_TIME_KEY);
+            String startTime = extras.getString(Constants.START_TIME_KEY);
             duration = extras.getInt(Constants.DURATION_KEY);
             userId = extras.getString(Constants.USER_ID);
             Log.d("initOptions ", "SERVICE extras = " + interval + " " + startTime + " " + duration);
@@ -78,13 +74,16 @@ public class AccelerometerService extends Service implements SensorEventListener
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            String cord = "(" + event.values[0] + "," + event.values[1] + "," + event.values[2] + ")";
-            submitData(cord);
-            Log.d("onSensorChanged", "ACCELEROMETER COORD = " + cord);
+            int ex = (int) Math.floor(event.values[0]);
+            int ey = (int) Math.floor(event.values[1]);
+            int ez = (int) Math.floor(event.values[2]);
+
+            submitData(ex, ey, ez);
+            Log.d("onSensorChanged", "ACCELEROMETER COORD = " + ex + "," + ey + "," + ez);
         }
     }
 
-    private void submitData(final String coordinates) {
+    private void submitData(final int ex, final int ey, final int ez) {
         timeStamp = new SimpleDateFormat("yyyy/MM/dd_HH:mm:ss", Locale.US).format(Calendar.getInstance().getTime());
         mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
                 new ValueEventListener() {
@@ -92,7 +91,7 @@ public class AccelerometerService extends Service implements SensorEventListener
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User user = dataSnapshot.getValue(User.class);
                         if (user != null) {
-                            sendDataToFirebase(userId, user.username, timeStamp, coordinates);
+                            sendDataToFirebase(userId, user.username, timeStamp, ex, ey, ez);
                         }
                     }
 
@@ -104,10 +103,10 @@ public class AccelerometerService extends Service implements SensorEventListener
         );
     }
 
-    private void sendDataToFirebase(String userId, String username, String recordTime, String coord) {
+    private void sendDataToFirebase(String userId, String username, String recordTime, int ex, int ey, int ez) {
 
         String key = mDatabase.child("coordinates").push().getKey();
-        Coordinates coordinates = new Coordinates(userId, username, recordTime, coord);
+        Coordinates coordinates = new Coordinates(userId, username, recordTime, ex, ey, ez);
         Map<String, Object> coordValues = coordinates.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/coordinates/" + key, coordValues);

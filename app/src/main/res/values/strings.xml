@@ -21,8 +21,8 @@
     <string name="interval_5s">5s</string>
     <string name="interval_10s">10s</string>
     <string name="set_interval">Set interval</string>
-    <string name="set_recording_time">Set recording time</string>
-    <string name="start_recording_time">Start recording time</string>
+    <string name="set_recording_time">Set recording interval</string>
+    <string name="start_recording_time">Start in time</string>
     <string name="set_recording_duration">Set recording duration</string>
     <string name="duration_1m">1m</string>
     <string name="duration_2m">2m</string>
