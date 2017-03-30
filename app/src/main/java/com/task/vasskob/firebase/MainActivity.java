@@ -15,8 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.task.vasskob.firebase.fragment.ChartFragment;
-import com.task.vasskob.firebase.fragment.ListFragment;
 import com.task.vasskob.firebase.fragment.ResentDataFragment;
 import com.task.vasskob.firebase.fragment.TimePickerFragment;
 import com.task.vasskob.firebase.service.AccelerometerService;
@@ -143,6 +143,8 @@ public class MainActivity extends BaseActivity {
                 TimePickerFragment dialogFragment = new TimePickerFragment();
                 dialogFragment.show(getFragmentManager(), getResources().getString(R.string.choose_time));
                 break;
+            case  R.id.clean_db:
+                FirebaseDatabase.getInstance().getReference().getRoot().removeValue();
             case R.id.action_logout:
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(this, SignInActivity.class));

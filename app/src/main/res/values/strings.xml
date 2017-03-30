@@ -29,4 +29,5 @@
     <string name="duration_5m">5m</string>
     <string name="duration_10m">10m</string>
     <string name="choose_time">Choose time</string>
+    <string name="clean_db">Clean DB</string>
 </resources>
