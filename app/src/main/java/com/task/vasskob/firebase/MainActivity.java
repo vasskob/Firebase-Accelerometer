@@ -144,7 +144,7 @@ public class MainActivity extends BaseActivity {
                 dialogFragment.show(getFragmentManager(), getResources().getString(R.string.choose_time));
                 break;
             case  R.id.clean_db:
-                FirebaseDatabase.getInstance().getReference().getRoot().removeValue();
+                FirebaseDatabase.getInstance().getReference().getRoot().child("user-coordinates").child(getUid()).removeValue();
             case R.id.action_logout:
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(this, SignInActivity.class));
