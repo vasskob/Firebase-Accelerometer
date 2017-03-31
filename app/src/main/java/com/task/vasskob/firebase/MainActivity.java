@@ -29,8 +29,8 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends BaseActivity {
 
-    private int interval = Constants.DEFAULT_INTERVAL;
-    private int duration = Constants.DEFAULT_DURATION;
+    public int interval = Constants.DEFAULT_INTERVAL;
+    public int duration = Constants.DEFAULT_DURATION;
     public String startTime;
     private BroadcastReceiver mReceiver;
 
@@ -50,39 +50,42 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
 
-        // Create the adapter that will return a fragment for each section
-        FragmentPagerAdapter mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
-            private final Fragment[] mFragments = new Fragment[]{
-                    new ResentDataFragment(),
-                    new ChartFragment(),
+//        int orientation=this.getResources().getConfiguration().orientation;
+//        if(orientation== Configuration.ORIENTATION_PORTRAIT){
+
+            ButterKnife.bind(this);
+                  // Create the adapter that will return a fragment for each section
+            FragmentPagerAdapter mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
+                private final Fragment[] mFragments = new Fragment[]{
+                        new ResentDataFragment(),
+                        new ChartFragment(),
+                };
+                private final String[] mFragmentNames = new String[]{
+                        getString(R.string.fragment_1),
+                        getString(R.string.fragment_2),
+                };
+
+                @Override
+                public Fragment getItem(int position) {
+                    return mFragments[position];
+                }
+
+                @Override
+                public int getCount() {
+                    return mFragments.length;
+                }
+
+                @Override
+                public CharSequence getPageTitle(int position) {
+                    return mFragmentNames[position];
+                }
             };
-            private final String[] mFragmentNames = new String[]{
-                    getString(R.string.fragment_1),
-                    getString(R.string.fragment_2),
-            };
+            // Set up the ViewPager with the sections adapter.
 
-            @Override
-            public Fragment getItem(int position) {
-                return mFragments[position];
-            }
-
-            @Override
-            public int getCount() {
-                return mFragments.length;
-            }
-
-            @Override
-            public CharSequence getPageTitle(int position) {
-                return mFragmentNames[position];
-            }
-        };
-        // Set up the ViewPager with the sections adapter.
-
-        mViewPager.setAdapter(mPagerAdapter);
-        tabLayout.setupWithViewPager(mViewPager);
-
+            mViewPager.setAdapter(mPagerAdapter);
+            tabLayout.setupWithViewPager(mViewPager);
+ //       } else {   }
         // Button launches NewPostActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,10 +110,11 @@ public class MainActivity extends BaseActivity {
             }
         });
 
+
     }
 
 
-    private void setFabColorAndIcon(int fabColor, int fabIcon) {
+    public void setFabColorAndIcon(int fabColor, int fabIcon) {
         fab.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, fabColor));
         fab.setImageResource(fabIcon);
     }
@@ -151,6 +155,8 @@ public class MainActivity extends BaseActivity {
             case R.id.start_recording_time:
                 TimePickerFragment dialogFragment = new TimePickerFragment();
                 dialogFragment.show(getFragmentManager(), getResources().getString(R.string.choose_time));
+
+
                 break;
             case R.id.clean_db:
                 FirebaseDatabase.getInstance().getReference().getRoot().child("user-coordinates").child(getUid()).removeValue();

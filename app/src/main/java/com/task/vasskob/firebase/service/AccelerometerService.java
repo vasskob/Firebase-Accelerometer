@@ -31,10 +31,10 @@ public class AccelerometerService extends Service implements SensorEventListener
     private static final int SEC_TO_MILISEC = 1000;
     private SensorManager sensorManager;
     private DatabaseReference mDatabase;
-    private String userId;
+    private String userId="gNKfebW2w2Pn6wGX5ht9NIAmJwI2";
 
-    int interval;
-    int duration;
+    int interval=Constants.DEFAULT_INTERVAL;
+    int duration=Constants.DEFAULT_DURATION;
     private String timeStamp;
 
     private long lastUpdateTime = 0;
@@ -67,7 +67,6 @@ public class AccelerometerService extends Service implements SensorEventListener
     private void initOptions(Bundle extras) {
         if (extras != null) {
             interval = extras.getInt(Constants.INTERVAL_KEY);
-            String startTime = extras.getString(Constants.START_TIME_KEY);
             duration = extras.getInt(Constants.DURATION_KEY);
             userId = extras.getString(Constants.USER_ID);
             Log.d("initOptions ", "SERVICE extras = " + interval + " " + startTime + " " + duration);
