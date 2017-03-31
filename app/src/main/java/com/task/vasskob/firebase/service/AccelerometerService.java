@@ -25,8 +25,10 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+
 public class AccelerometerService extends Service implements SensorEventListener {
 
+    private static final int SEC_TO_MILISEC = 1000;
     private SensorManager sensorManager;
     private DatabaseReference mDatabase;
     private String userId;
@@ -34,6 +36,9 @@ public class AccelerometerService extends Service implements SensorEventListener
     int interval;
     int duration;
     private String timeStamp;
+
+    private long lastUpdateTime = 0;
+    private long startTime;
 
     @Override
     public void onCreate() {
@@ -43,8 +48,8 @@ public class AccelerometerService extends Service implements SensorEventListener
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-
-
+        startTime = System.currentTimeMillis();
+        //  timer = new Timer();
     }
 
     @Override
@@ -104,14 +109,24 @@ public class AccelerometerService extends Service implements SensorEventListener
     }
 
     private void sendDataToFirebase(String userId, String username, String recordTime, int ex, int ey, int ez) {
+        long currentTime = System.currentTimeMillis();
+        if ((currentTime - lastUpdateTime) > interval * SEC_TO_MILISEC) {
 
-        String key = mDatabase.child("coordinates").push().getKey();
-        Coordinates coordinates = new Coordinates(userId, username, recordTime, ex, ey, ez);
-        Map<String, Object> coordValues = coordinates.toMap();
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/coordinates/" + key, coordValues);
-        childUpdates.put("/user-coordinates/" + userId + "/" + key, coordValues);
-        mDatabase.updateChildren(childUpdates);
+            String key = mDatabase.child("coordinates").push().getKey();
+            Coordinates coordinates = new Coordinates(userId, username, recordTime, ex, ey, ez);
+            Map<String, Object> coordValues = coordinates.toMap();
+            Map<String, Object> childUpdates = new HashMap<>();
+
+            //   childUpdates.put("/coordinates/" + key, coordValues);
+            childUpdates.put("/user-coordinates/" + userId + "/" + key, coordValues);
+            mDatabase.updateChildren(childUpdates);
+            lastUpdateTime = currentTime;
+        }
+        if ((currentTime - startTime) > duration * Constants.SEC_TO_MILISEC) {
+            stopSelf();
+            Intent i = new Intent("android.intent.action.MAIN");
+            this.sendBroadcast(i);
+        }
     }
 
     @Override
@@ -123,6 +138,7 @@ public class AccelerometerService extends Service implements SensorEventListener
     public void onDestroy() {
         super.onDestroy();
         sensorManager.unregisterListener(this);
+
         Log.d("onDestroy", "onDestroy service STOP ed");
     }
 

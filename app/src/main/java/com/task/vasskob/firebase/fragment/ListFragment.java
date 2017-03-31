@@ -73,7 +73,7 @@ public abstract class ListFragment extends Fragment {
                 viewHolder.bindToCoordinates(model);
                 DatabaseReference userPostRef = mDatabase.child("user-coordinates").child(model.uid).child(coordRef.getKey());
 
-                // Run two transactions
+                // Run transaction
                 onStarClicked(userPostRef);
             }
 
@@ -90,7 +90,6 @@ public abstract class ListFragment extends Fragment {
                 if (c == null) {
                     return Transaction.success(mutableData);
                 }
-
 
                 // Set value and report transaction success
                 mutableData.setValue(c);
