@@ -4,7 +4,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
-
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.model.Coordinates;
 
@@ -23,6 +22,6 @@ public class DataViewHolder extends RecyclerView.ViewHolder {
 
     public void bindToCoordinates(Coordinates coordinates) {
         recordingTime.setText(coordinates.recordTime);
-        accelerometerData.setText("("+coordinates.coordinateX+","+coordinates.coordinateY+","+coordinates.coordinateZ+")");
+        accelerometerData.setText("(" + coordinates.coordinateX + "," + coordinates.coordinateY + "," + coordinates.coordinateZ + ")");
     }
 }
