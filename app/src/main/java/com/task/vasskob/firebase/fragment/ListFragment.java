@@ -62,19 +62,20 @@ public abstract class ListFragment extends Fragment {
         mRecycler.setLayoutManager(mManager);
 
         // Set up FirebaseRecyclerAdapter with the Query
-        Query postsQuery = getQuery(mDatabase);
+        Query coordinatesQuery = getQuery(mDatabase);
         mAdapter = new FirebaseRecyclerAdapter<Coordinates, DataViewHolder>(Coordinates.class, R.layout.list_item,
-                DataViewHolder.class, postsQuery) {
+                DataViewHolder.class, coordinatesQuery) {
             @Override
-            protected void populateViewHolder(DataViewHolder viewHolder, final Coordinates model, int position) {
+            protected void populateViewHolder(DataViewHolder viewHolder, final Coordinates coord, int position) {
                 final DatabaseReference coordRef = getRef(position);
 
-                // Bind Post to ViewHolder, setting OnClickListener for the star button
-                viewHolder.bindToCoordinates(model);
-                DatabaseReference userPostRef = mDatabase.child("user-coordinates").child(model.uid).child(coordRef.getKey());
+                // Bind Coordinates to ViewHolder, setting OnClickListener for the star button
+                viewHolder.bindToCoordinates(coord);
+              //// TODO: 01.04.17 need change request to correct child
+                DatabaseReference userCoordinatesRef = mDatabase.child("users-sessions-coordinates").child(coord.uid).child(coordRef.getKey());
 
                 // Run transaction
-                onStarClicked(userPostRef);
+                onStarClicked(userCoordinatesRef);
             }
 
         };
@@ -82,8 +83,8 @@ public abstract class ListFragment extends Fragment {
 
     }
 
-    private void onStarClicked(DatabaseReference postRef) {
-        postRef.runTransaction(new Transaction.Handler() {
+    private void onStarClicked(DatabaseReference coordRef) {
+        coordRef.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
                 Coordinates c = mutableData.getValue(Coordinates.class);

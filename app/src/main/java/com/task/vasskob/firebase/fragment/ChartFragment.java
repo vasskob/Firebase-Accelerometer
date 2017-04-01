@@ -20,6 +20,8 @@ import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
 
+import static android.graphics.Color.GREEN;
+
 // https://github.com/lecho/hellocharts-android
 
 public class ChartFragment extends Fragment {
@@ -100,7 +102,7 @@ public class ChartFragment extends Fragment {
         lineX.setPointRadius(4);
 
 
-        Line lineY = new Line(valuesY).setColor(Color.GREEN).setCubic(true);
+        Line lineY = new Line(valuesY).setColor(GREEN).setCubic(true);
         lineY.setStrokeWidth(3);
         lineY.setPointRadius(4);
 
@@ -117,14 +119,14 @@ public class ChartFragment extends Fragment {
         data.setLines(lines);
 
         Axis axisT = new Axis();
-        Axis axisXYZ = new Axis().setHasLines(true);
-        axisT.setName("Axis t");
-        axisXYZ.setName("Axis x, y, z");
+        Axis axisXYZ = new Axis().setHasLines(true).setHasTiltedLabels(true);
+
+
+        axisT.setName("Axis T");
+        axisXYZ.setName("Axis X, Y, Z");
+
         data.setAxisXBottom(axisT);
         data.setAxisYLeft(axisXYZ);
-
-//        data.setAxisXBottom(Axis.generateAxisFromRange(0, 10, 1));
-//        data.setAxisYLeft(Axis.generateAxisFromRange(-8, 16, 1));
 
         chartView.setLineChartData(data);
 

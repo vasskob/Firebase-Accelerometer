@@ -17,6 +17,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.model.Coordinates;
+import com.task.vasskob.firebase.model.Session;
 import com.task.vasskob.firebase.model.User;
 
 import java.text.SimpleDateFormat;
@@ -28,18 +29,19 @@ import java.util.Map;
 
 public class AccelerometerService extends Service implements SensorEventListener {
 
-    private static final int SEC_TO_MILISEC = 1000;
     private SensorManager sensorManager;
     private DatabaseReference mDatabase;
     private String userId;
-            //="gNKfebW2w2Pn6wGX5ht9NIAmJwI2";
+    //="gNKfebW2w2Pn6wGX5ht9NIAmJwI2";
 
-    int interval=Constants.DEFAULT_INTERVAL;
-    int duration=Constants.DEFAULT_DURATION;
+    int interval = Constants.DEFAULT_INTERVAL;
+    int duration = Constants.DEFAULT_DURATION;
     private String timeStamp;
 
     private long lastUpdateTime = 0;
     private long startTime;
+    private Session session;
+    private String sessionKey;
 
     @Override
     public void onCreate() {
@@ -50,7 +52,9 @@ public class AccelerometerService extends Service implements SensorEventListener
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         startTime = System.currentTimeMillis();
-        //  timer = new Timer();
+
+        sessionKey = mDatabase.child("sessions").push().getKey();
+
     }
 
     @Override
@@ -70,6 +74,7 @@ public class AccelerometerService extends Service implements SensorEventListener
             interval = extras.getInt(Constants.INTERVAL_KEY);
             duration = extras.getInt(Constants.DURATION_KEY);
             userId = extras.getString(Constants.USER_ID);
+            session = new Session(userId, interval, duration);
             Log.d("initOptions ", "SERVICE extras = " + interval + " " + startTime + " " + duration);
         } else {
             Log.d("initOptions ", "bundle is NULL !!!!!!!!! ");
@@ -110,15 +115,24 @@ public class AccelerometerService extends Service implements SensorEventListener
 
     private void sendDataToFirebase(String userId, String username, String recordTime, int ex, int ey, int ez) {
         long currentTime = System.currentTimeMillis();
-        if ((currentTime - lastUpdateTime) > interval * SEC_TO_MILISEC) {
+        if ((currentTime - lastUpdateTime) > interval * Constants.SEC_TO_MILISEC) {
 
-            String key = mDatabase.child("coordinates").push().getKey();
+            String coordinateKey = mDatabase.child("coordinates").push().getKey();
+
             Coordinates coordinates = new Coordinates(userId, username, recordTime, ex, ey, ez);
             Map<String, Object> coordValues = coordinates.toMap();
             Map<String, Object> childUpdates = new HashMap<>();
 
             //   childUpdates.put("/coordinates/" + key, coordValues);
-            childUpdates.put("/user-coordinates/" + userId + "/" + key, coordValues);
+
+//          childUpdates.put("/user-coordinates/" + userId + "/" + coordinateKey, coordValues);
+
+
+            Map<String, Object> sessionValues = session.toMap();
+            childUpdates.put("/users-sessions-coordinates/" + userId + "/" + sessionKey + "/" + coordinateKey, coordValues);
+            childUpdates.put("/sessions/" + sessionKey, sessionValues);
+
+
             mDatabase.updateChildren(childUpdates);
             lastUpdateTime = currentTime;
         }
