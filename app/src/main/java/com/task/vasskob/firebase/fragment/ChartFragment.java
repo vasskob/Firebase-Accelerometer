@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
 import com.task.vasskob.firebase.R;
 
 import java.util.ArrayList;
@@ -19,8 +18,6 @@ import butterknife.ButterKnife;
 import lecho.lib.hellocharts.gesture.ContainerScrollType;
 import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.model.Axis;
-import lecho.lib.hellocharts.model.ChartData;
-import lecho.lib.hellocharts.model.ColumnChartData;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
@@ -77,9 +74,9 @@ public class ChartFragment extends Fragment {
         LineChartData data = new LineChartData();
         data.setLines(lines);
         data.setAxisXBottom(Axis.generateAxisFromCollection(axis));
-        data.setAxisYLeft(Axis.generateAxisFromRange(0f,10f,1f));
+        data.setAxisYLeft(Axis.generateAxisFromRange(0f, 10f, 1f));
 
-        chartView = new LineChartView(getContext());
+//        chartView = new LineChartView(getContext());
         chartView.setLineChartData(data);
     }
 }

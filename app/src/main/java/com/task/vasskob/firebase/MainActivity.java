@@ -5,10 +5,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -19,9 +19,9 @@ import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
-import com.task.vasskob.firebase.fragment.ChartFragment;
-import com.task.vasskob.firebase.fragment.ResentDataFragment;
 import com.task.vasskob.firebase.fragment.TimePickerFragment;
+import com.task.vasskob.firebase.pageadapter.LandscapeFragmentPageAdapter;
+import com.task.vasskob.firebase.pageadapter.PortraitFragmentPageAdapter;
 import com.task.vasskob.firebase.service.AccelerometerService;
 
 import butterknife.Bind;
@@ -50,42 +50,21 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-//        int orientation=this.getResources().getConfiguration().orientation;
-//        if(orientation== Configuration.ORIENTATION_PORTRAIT){
+        int orientation = this.getResources().getConfiguration().orientation;
+        // Create the adapter that will return a fragment for each section
+        FragmentPagerAdapter mPagerAdapter;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mPagerAdapter = new PortraitFragmentPageAdapter(getSupportFragmentManager(), this);
+        } else {
+            mPagerAdapter = new LandscapeFragmentPageAdapter(getSupportFragmentManager(), this);
+        }
 
-            ButterKnife.bind(this);
-                  // Create the adapter that will return a fragment for each section
-            FragmentPagerAdapter mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
-                private final Fragment[] mFragments = new Fragment[]{
-                        new ResentDataFragment(),
-                        new ChartFragment(),
-                };
-                private final String[] mFragmentNames = new String[]{
-                        getString(R.string.fragment_1),
-                        getString(R.string.fragment_2),
-                };
-
-                @Override
-                public Fragment getItem(int position) {
-                    return mFragments[position];
-                }
-
-                @Override
-                public int getCount() {
-                    return mFragments.length;
-                }
-
-                @Override
-                public CharSequence getPageTitle(int position) {
-                    return mFragmentNames[position];
-                }
-            };
-            // Set up the ViewPager with the sections adapter.
-
-            mViewPager.setAdapter(mPagerAdapter);
-            tabLayout.setupWithViewPager(mViewPager);
- //       } else {   }
+        // Set up the ViewPager with the sections adapter.
+        mViewPager.setAdapter(mPagerAdapter);
+        tabLayout.setupWithViewPager(mViewPager);
+        //       } else {   }
         // Button launches NewPostActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
