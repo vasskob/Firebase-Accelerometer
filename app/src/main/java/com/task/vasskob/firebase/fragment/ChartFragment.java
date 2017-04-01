@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
 import com.task.vasskob.firebase.R;
 
 import java.util.ArrayList;
@@ -16,15 +15,10 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import lecho.lib.hellocharts.gesture.ContainerScrollType;
-import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.model.Axis;
-import lecho.lib.hellocharts.model.ChartData;
-import lecho.lib.hellocharts.model.ColumnChartData;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
-import lecho.lib.hellocharts.view.LineChartView;
 
 // https://github.com/lecho/hellocharts-android
 
@@ -38,10 +32,21 @@ public class ChartFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.chart_fragment, parent, false);
         ButterKnife.bind(this, rootView);
 
-        chartView.setViewportCalculationEnabled(false);
-        chartView.setInteractive(true);
-        chartView.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);
-        chartView.setContainerScrollEnabled(true, ContainerScrollType.HORIZONTAL);
+        chartView.setViewportCalculationEnabled(true);
+        chartView.setZoomEnabled(false);
+
+//        chartView.setOnValueTouchListener(new LineChartOnValueSelectListener() {
+//            @Override
+//            public void onValueSelected(int lineIndex, int pointIndex, PointValue value) {
+//                Toast.makeText(getActivity(), "Selected: " + value, Toast.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void onValueDeselected() {
+//
+//            }
+//        });
+
 
         setChartView();
 
@@ -52,34 +57,76 @@ public class ChartFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
     }
 
     private void setChartView() {
 
-        List<PointValue> values = new ArrayList<>();
-        values.add(new PointValue(0, 3));
-        values.add(new PointValue(1, 2));
-        values.add(new PointValue(2, 3));
-        values.add(new PointValue(5, 4));
+        List<PointValue> valuesX = new ArrayList<>();
+        valuesX.add(new PointValue(1, 1));
+        valuesX.add(new PointValue(2, 5));
+        valuesX.add(new PointValue(3, 3));
+        valuesX.add(new PointValue(4, 7));
+        valuesX.add(new PointValue(5, -3));
+        valuesX.add(new PointValue(6, 0));
+        valuesX.add(new PointValue(7, 5));
+        valuesX.add(new PointValue(8, 7));
 
-        List<Float> axis = new ArrayList<>();
-        axis.add(0f);
-        axis.add(5f);
-        axis.add(10f);
+
+        List<PointValue> valuesY = new ArrayList<>();
+        valuesY.add(new PointValue(0, 8));
+        valuesY.add(new PointValue(1, 2));
+        valuesY.add(new PointValue(2, -4));
+        valuesY.add(new PointValue(3, 7));
+        valuesY.add(new PointValue(4, 1));
+        valuesY.add(new PointValue(5, 5));
+        valuesY.add(new PointValue(6, 7));
+        valuesY.add(new PointValue(7, 0));
+
+
+        List<PointValue> valuesZ = new ArrayList<>();
+        valuesZ.add(new PointValue(0, 4));
+        valuesZ.add(new PointValue(1, 5));
+        valuesZ.add(new PointValue(2, 2));
+        valuesZ.add(new PointValue(3, 0));
+        valuesZ.add(new PointValue(4, 4));
+        valuesZ.add(new PointValue(5, 2));
+        valuesZ.add(new PointValue(6, 7));
+        valuesZ.add(new PointValue(7, 9));
+
 
         //In most cased you can call data model methods in builder-pattern-like manner.
-        Line line = new Line(values).setColor(Color.BLUE).setCubic(true);
+        Line lineX = new Line(valuesX).setColor(Color.RED).setCubic(true);
+        lineX.setStrokeWidth(3);
+        lineX.setPointRadius(4);
+
+
+        Line lineY = new Line(valuesY).setColor(Color.GREEN).setCubic(true);
+        lineY.setStrokeWidth(3);
+        lineY.setPointRadius(4);
+
+        Line lineZ = new Line(valuesZ).setColor(Color.BLUE).setCubic(true);
+        lineZ.setStrokeWidth(3);
+        lineZ.setPointRadius(4);
+
         List<Line> lines = new ArrayList<>();
-        lines.add(line);
-        line.setStrokeWidth(10);
+        lines.add(lineX);
+        lines.add(lineY);
+        lines.add(lineZ);
 
         LineChartData data = new LineChartData();
         data.setLines(lines);
-        data.setAxisXBottom(Axis.generateAxisFromCollection(axis));
-        data.setAxisYLeft(Axis.generateAxisFromRange(0f,10f,1f));
 
-        chartView = new LineChartView(getContext());
+        Axis axisT = new Axis();
+        Axis axisXYZ = new Axis().setHasLines(true);
+        axisT.setName("Axis t");
+        axisXYZ.setName("Axis x, y, z");
+        data.setAxisXBottom(axisT);
+        data.setAxisYLeft(axisXYZ);
+
+//        data.setAxisXBottom(Axis.generateAxisFromRange(0, 10, 1));
+//        data.setAxisYLeft(Axis.generateAxisFromRange(-8, 16, 1));
+
         chartView.setLineChartData(data);
+
     }
 }
