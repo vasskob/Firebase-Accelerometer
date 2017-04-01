@@ -57,8 +57,10 @@ public class MainActivity extends BaseActivity {
         FragmentPagerAdapter mPagerAdapter;
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             mPagerAdapter = new PortraitFragmentPageAdapter(getSupportFragmentManager(), this);
+            tabLayout.setVisibility(View.VISIBLE);
         } else {
             mPagerAdapter = new LandscapeFragmentPageAdapter(getSupportFragmentManager(), this);
+            tabLayout.setVisibility(View.GONE);
         }
 
         // Set up the ViewPager with the sections adapter.
