@@ -21,7 +21,7 @@ public class Session {
     }
 
     public Session(String userId, int interval, int duration, String startTime) {
-       this.userId = userId;
+        this.userId = userId;
         this.interval = interval;
         this.duration = duration;
         this.startTime = startTime;
@@ -38,7 +38,6 @@ public class Session {
         result.put("startTime", startTime);
         return result;
     }
-
 
 
 }

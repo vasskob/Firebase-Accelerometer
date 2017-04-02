@@ -40,7 +40,7 @@ public class AccelerometerService extends Service implements SensorEventListener
     private long lastUpdateTime = 0;
     private long startTime;
     private Session session;
-    private String sessionKey;
+    private String sessionId;
 
     @Override
     public void onCreate() {
@@ -52,8 +52,7 @@ public class AccelerometerService extends Service implements SensorEventListener
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         startTime = System.currentTimeMillis();
 
-        sessionKey = mDatabase.child("sessions").push().getKey();
-
+        sessionId = mDatabase.child("sessions").push().getKey();
     }
 
     @Override
@@ -91,10 +90,15 @@ public class AccelerometerService extends Service implements SensorEventListener
             int ex = (int) Math.floor(event.values[0]);
             int ey = (int) Math.floor(event.values[1]);
             int ez = (int) Math.floor(event.values[2]);
-
-            submitData(ex, ey, ez);
+            if (userId != null)
+                submitData(ex, ey, ez);
             Log.d("onSensorChanged", "ACCELEROMETER COORD = " + ex + "," + ey + "," + ez);
         }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 
     private void submitData(final int ex, final int ey, final int ez) {
@@ -104,7 +108,7 @@ public class AccelerometerService extends Service implements SensorEventListener
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User user = dataSnapshot.getValue(User.class);
                         if (user != null) {
-                            sendDataToFirebase(userId, user.username, getFormattedCurrentTime(), ex, ey, ez);
+                            sendDataToFirebase(getFormattedCurrentTime(), ex, ey, ez);
                         }
                     }
 
@@ -116,25 +120,17 @@ public class AccelerometerService extends Service implements SensorEventListener
         );
     }
 
-    private void sendDataToFirebase(String userId, String username, String recordTime, int ex, int ey, int ez) {
+    private void sendDataToFirebase(String recordTime, int ex, int ey, int ez) {
         long currentTime = System.currentTimeMillis();
         if ((currentTime - lastUpdateTime) > interval * Constants.SEC_TO_MILISEC) {
 
-            String coordinateKey = mDatabase.child("coordinates").push().getKey();
+            String coordinateId = mDatabase.child("coordinates").push().getKey();
 
-            Coordinates coordinates = new Coordinates(userId, username, recordTime, ex, ey, ez);
+            Coordinates coordinates = new Coordinates(userId, sessionId, recordTime, ex, ey, ez);
             Map<String, Object> coordValues = coordinates.toMap();
             Map<String, Object> childUpdates = new HashMap<>();
 
-            //   childUpdates.put("/coordinates/" + key, coordValues);
-
-//          childUpdates.put("/user-coordinates/" + userId + "/" + coordinateKey, coordValues);
-
-
-            Map<String, Object> sessionValues = session.toMap();
-            childUpdates.put("/users-sessions-coordinates/" + userId + "/" + sessionKey + "/" + coordinateKey, coordValues);
-            childUpdates.put("/sessions/" + sessionKey, sessionValues);
-
+            childUpdates.put("/users-sessions-coordinates/" + userId + "/" + sessionId + "/" + coordinateId, coordValues);
 
             mDatabase.updateChildren(childUpdates);
             lastUpdateTime = currentTime;
@@ -144,11 +140,6 @@ public class AccelerometerService extends Service implements SensorEventListener
             Intent i = new Intent("android.intent.action.MAIN");
             this.sendBroadcast(i);
         }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 
     @Override

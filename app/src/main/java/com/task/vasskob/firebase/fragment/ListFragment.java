@@ -71,8 +71,8 @@ public abstract class ListFragment extends Fragment {
 
                 // Bind Coordinates to ViewHolder, setting OnClickListener for the star button
                 viewHolder.bindToCoordinates(coord);
-              //// TODO: 01.04.17 need change request to correct child
-                DatabaseReference userCoordinatesRef = mDatabase.child("users-sessions-coordinates").child(coord.uid).child(coordRef.getKey());
+                //// TODO: 01.04.17 need change request to correct child
+                DatabaseReference userCoordinatesRef = mDatabase.child("users-sessions-coordinates").child(coord.uid).child(coord.sessid).child(coordRef.getKey());
 
 //            DatabaseReference userCoordinatesRef = mDatabase.child("users-sessions-coordinates")
 //            .child(session.user).child(coord.uid).child(coordRef.getKey());
