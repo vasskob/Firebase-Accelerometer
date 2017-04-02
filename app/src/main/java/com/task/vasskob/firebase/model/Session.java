@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class Session {
 
-    public int startTime;
+    public String startTime;
     public int interval;
     public int duration;
     public String userId;
@@ -20,7 +20,7 @@ public class Session {
         // Default constructor required for calls to DataSnapshot.getValue(Coordinates.class)
     }
 
-    public Session(String userId, int interval, int duration, int startTime) {
+    public Session(String userId, int interval, int duration, String startTime) {
        this.userId = userId;
         this.interval = interval;
         this.duration = duration;

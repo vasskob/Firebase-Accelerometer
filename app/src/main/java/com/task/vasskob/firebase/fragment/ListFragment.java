@@ -74,6 +74,9 @@ public abstract class ListFragment extends Fragment {
               //// TODO: 01.04.17 need change request to correct child
                 DatabaseReference userCoordinatesRef = mDatabase.child("users-sessions-coordinates").child(coord.uid).child(coordRef.getKey());
 
+//            DatabaseReference userCoordinatesRef = mDatabase.child("users-sessions-coordinates")
+//            .child(session.user).child(coord.uid).child(coordRef.getKey());
+
                 // Run transaction
                 onStarClicked(userCoordinatesRef);
             }

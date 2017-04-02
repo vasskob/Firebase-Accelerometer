@@ -36,7 +36,6 @@ public class AccelerometerService extends Service implements SensorEventListener
 
     int interval = Constants.DEFAULT_INTERVAL;
     int duration = Constants.DEFAULT_DURATION;
-    private String timeStamp;
 
     private long lastUpdateTime = 0;
     private long startTime;
@@ -74,11 +73,16 @@ public class AccelerometerService extends Service implements SensorEventListener
             interval = extras.getInt(Constants.INTERVAL_KEY);
             duration = extras.getInt(Constants.DURATION_KEY);
             userId = extras.getString(Constants.USER_ID);
-            session = new Session(userId, interval, duration);
+            session = new Session(userId, interval, duration,
+                    getFormattedCurrentTime());
             Log.d("initOptions ", "SERVICE extras = " + interval + " " + startTime + " " + duration);
         } else {
             Log.d("initOptions ", "bundle is NULL !!!!!!!!! ");
         }
+    }
+
+    private String getFormattedCurrentTime() {
+        return new SimpleDateFormat("yyyy/MM/dd_HH:mm:ss", Locale.US).format(Calendar.getInstance().getTime());
     }
 
     @Override
@@ -94,14 +98,13 @@ public class AccelerometerService extends Service implements SensorEventListener
     }
 
     private void submitData(final int ex, final int ey, final int ez) {
-        timeStamp = new SimpleDateFormat("yyyy/MM/dd_HH:mm:ss", Locale.US).format(Calendar.getInstance().getTime());
         mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User user = dataSnapshot.getValue(User.class);
                         if (user != null) {
-                            sendDataToFirebase(userId, user.username, timeStamp, ex, ey, ez);
+                            sendDataToFirebase(userId, user.username, getFormattedCurrentTime(), ex, ey, ez);
                         }
                     }
 
