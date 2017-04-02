@@ -164,6 +164,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
+                isRunning=false;
             }
         };
         //registering our receiver

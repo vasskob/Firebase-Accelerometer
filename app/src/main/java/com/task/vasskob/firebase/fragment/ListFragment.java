@@ -5,19 +5,14 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.Transaction;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.model.Coordinates;
 import com.task.vasskob.firebase.viewholder.DataViewHolder;
@@ -63,8 +58,8 @@ public abstract class ListFragment extends Fragment {
 
         // Set up FirebaseRecyclerAdapter with the Query
         Query coordinatesQuery = getQuery(mDatabase);
-        mAdapter = new FirebaseRecyclerAdapter<Coordinates, DataViewHolder>(Coordinates.class, R.layout.list_item,
-                DataViewHolder.class, coordinatesQuery) {
+        mAdapter = new FirebaseRecyclerAdapter<Coordinates, DataViewHolder>
+                (Coordinates.class, R.layout.list_item,DataViewHolder.class, coordinatesQuery) {
             @Override
             protected void populateViewHolder(DataViewHolder viewHolder, final Coordinates coord, int position) {
                 final DatabaseReference coordRef = getRef(position);
@@ -72,41 +67,15 @@ public abstract class ListFragment extends Fragment {
                 // Bind Coordinates to ViewHolder, setting OnClickListener for the star button
                 viewHolder.bindToCoordinates(coord);
               //// TODO: 01.04.17 need change request to correct child
-                DatabaseReference userCoordinatesRef = mDatabase.child("users-sessions-coordinates").child(coord.uid).child(coordRef.getKey());
+//                DatabaseReference userCoordinatesRef = mDatabase.child("users-sessions-coordinates").child(coord.uid).child(coordRef.getKey());
 
-//            DatabaseReference userCoordinatesRef = mDatabase.child("users-sessions-coordinates")
-//            .child(session.user).child(coord.uid).child(coordRef.getKey());
+                mDatabase.child("users-sessions-coordinates").
+                        child(coord.uid).child(coord.sessid).child(coordRef.getKey());
 
-                // Run transaction
-                onStarClicked(userCoordinatesRef);
             }
 
         };
         mRecycler.setAdapter(mAdapter);
-
-    }
-
-    private void onStarClicked(DatabaseReference coordRef) {
-        coordRef.runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                Coordinates c = mutableData.getValue(Coordinates.class);
-                if (c == null) {
-                    return Transaction.success(mutableData);
-                }
-
-                // Set value and report transaction success
-                mutableData.setValue(c);
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(DatabaseError databaseError, boolean b,
-                                   DataSnapshot dataSnapshot) {
-                // Transaction completed
-                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
-            }
-        });
 
     }
 

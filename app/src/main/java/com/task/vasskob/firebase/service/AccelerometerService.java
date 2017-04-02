@@ -91,13 +91,14 @@ public class AccelerometerService extends Service implements SensorEventListener
             int ex = (int) Math.floor(event.values[0]);
             int ey = (int) Math.floor(event.values[1]);
             int ez = (int) Math.floor(event.values[2]);
-
-            submitData(ex, ey, ez);
+            if (userId!=null){
+            submitData(ex, ey, ez);}
             Log.d("onSensorChanged", "ACCELEROMETER COORD = " + ex + "," + ey + "," + ez);
         }
     }
 
     private void submitData(final int ex, final int ey, final int ez) {
+
         mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
@@ -116,13 +117,14 @@ public class AccelerometerService extends Service implements SensorEventListener
         );
     }
 
+
     private void sendDataToFirebase(String userId, String username, String recordTime, int ex, int ey, int ez) {
         long currentTime = System.currentTimeMillis();
         if ((currentTime - lastUpdateTime) > interval * Constants.SEC_TO_MILISEC) {
 
             String coordinateKey = mDatabase.child("coordinates").push().getKey();
 
-            Coordinates coordinates = new Coordinates(userId, username, recordTime, ex, ey, ez);
+            Coordinates coordinates = new Coordinates(userId, sessionKey, recordTime, ex, ey, ez);
             Map<String, Object> coordValues = coordinates.toMap();
             Map<String, Object> childUpdates = new HashMap<>();
 
