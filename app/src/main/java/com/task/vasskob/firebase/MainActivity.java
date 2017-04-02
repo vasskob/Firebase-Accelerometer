@@ -24,6 +24,8 @@ import com.task.vasskob.firebase.pageadapter.LandscapeFragmentPageAdapter;
 import com.task.vasskob.firebase.pageadapter.PortraitFragmentPageAdapter;
 import com.task.vasskob.firebase.service.AccelerometerService;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -44,7 +46,7 @@ public class MainActivity extends BaseActivity {
 
     @Bind(R.id.fab_run_service)
     public FloatingActionButton fab;
-    private boolean isRunning = false;
+    public static AtomicBoolean isRunning = new AtomicBoolean(false);;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +73,7 @@ public class MainActivity extends BaseActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isRunning) {
+                if (isRunning.get() == false) {
                     Intent intent = new Intent(MainActivity.this, AccelerometerService.class);
                     Bundle bundle = new Bundle();
                     bundle.putString(Constants.USER_ID, getUid());
@@ -81,19 +83,15 @@ public class MainActivity extends BaseActivity {
                     intent.putExtra(Constants.OPTIONS_KEY, bundle);
                     startService(intent);
                     setFabColorAndIcon(R.color.colorRunService, R.drawable.ic_stop);
-                    isRunning = true;
+                    isRunning.set(true);
                 } else {
-                    MainActivity.this.stopService(new Intent(MainActivity.this,
-                            AccelerometerService.class));
+                    stopService(new Intent(MainActivity.this, AccelerometerService.class));
                     setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
-                    isRunning = false;
+                    isRunning.set(false);
                 }
             }
         });
-
-
     }
-
 
     public void setFabColorAndIcon(int fabColor, int fabIcon) {
         fab.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, fabColor));

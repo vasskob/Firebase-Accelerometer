@@ -5,28 +5,22 @@ import com.google.firebase.database.Exclude;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by anonymous on 01.04.17
- */
-
 public class Session {
 
-    public int startTime;
+    public String userId;
     public int interval;
     public int duration;
-    public String userId;
+    public long startTime;
 
     public Session() {
         // Default constructor required for calls to DataSnapshot.getValue(Coordinates.class)
     }
 
-    public Session(String userId, int interval, int duration, int startTime) {
-       this.userId = userId;
+    public Session(String userId, int interval, int duration, long startTime) {
+        this.userId = userId;
         this.interval = interval;
         this.duration = duration;
         this.startTime = startTime;
-
-
     }
 
     @Exclude
@@ -38,7 +32,6 @@ public class Session {
         result.put("startTime", startTime);
         return result;
     }
-
 
 
 }
