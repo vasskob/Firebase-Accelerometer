@@ -32,7 +32,6 @@ public class AccelerometerService extends Service implements SensorEventListener
     private SensorManager sensorManager;
     private DatabaseReference mDatabase;
     private String userId;
-    //="gNKfebW2w2Pn6wGX5ht9NIAmJwI2";
 
     int interval = Constants.DEFAULT_INTERVAL;
     int duration = Constants.DEFAULT_DURATION;
@@ -73,7 +72,7 @@ public class AccelerometerService extends Service implements SensorEventListener
             interval = extras.getInt(Constants.INTERVAL_KEY);
             duration = extras.getInt(Constants.DURATION_KEY);
             userId = extras.getString(Constants.USER_ID);
-            session = new Session(userId, interval, duration,
+            session = new Session(sessionKey, interval, duration,
                     getFormattedCurrentTime());
             Log.d("initOptions ", "SERVICE extras = " + interval + " " + startTime + " " + duration);
         } else {
@@ -91,8 +90,9 @@ public class AccelerometerService extends Service implements SensorEventListener
             int ex = (int) Math.floor(event.values[0]);
             int ey = (int) Math.floor(event.values[1]);
             int ez = (int) Math.floor(event.values[2]);
-            if (userId!=null){
-            submitData(ex, ey, ez);}
+            if (userId != null) {
+                submitData(ex, ey, ez);
+            }
             Log.d("onSensorChanged", "ACCELEROMETER COORD = " + ex + "," + ey + "," + ez);
         }
     }
@@ -105,10 +105,9 @@ public class AccelerometerService extends Service implements SensorEventListener
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User user = dataSnapshot.getValue(User.class);
                         if (user != null) {
-                            sendDataToFirebase(userId, user.username, getFormattedCurrentTime(), ex, ey, ez);
+                            sendDataToFirebase(userId, getFormattedCurrentTime(), ex, ey, ez);
                         }
                     }
-
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
 
@@ -118,25 +117,19 @@ public class AccelerometerService extends Service implements SensorEventListener
     }
 
 
-    private void sendDataToFirebase(String userId, String username, String recordTime, int ex, int ey, int ez) {
+    private void sendDataToFirebase(String userId, String recordTime, int ex, int ey, int ez) {
         long currentTime = System.currentTimeMillis();
         if ((currentTime - lastUpdateTime) > interval * Constants.SEC_TO_MILISEC) {
 
             String coordinateKey = mDatabase.child("coordinates").push().getKey();
 
-            Coordinates coordinates = new Coordinates(userId, sessionKey, recordTime, ex, ey, ez);
+            Coordinates coordinates = new Coordinates(recordTime, ex, ey, ez);
             Map<String, Object> coordValues = coordinates.toMap();
+            Map<String, Object> sessionValues = session.toMap();
             Map<String, Object> childUpdates = new HashMap<>();
 
-            //   childUpdates.put("/coordinates/" + key, coordValues);
-
-//          childUpdates.put("/user-coordinates/" + userId + "/" + coordinateKey, coordValues);
-
-
-            Map<String, Object> sessionValues = session.toMap();
+            childUpdates.put("/sessions/" + userId + "/" + sessionKey, sessionValues);
             childUpdates.put("/users-sessions-coordinates/" + userId + "/" + sessionKey + "/" + coordinateKey, coordValues);
-            childUpdates.put("/sessions/" + sessionKey, sessionValues);
-
 
             mDatabase.updateChildren(childUpdates);
             lastUpdateTime = currentTime;
@@ -144,6 +137,7 @@ public class AccelerometerService extends Service implements SensorEventListener
         if ((currentTime - startTime) > duration * Constants.SEC_TO_MILISEC) {
             stopSelf();
             Intent i = new Intent("android.intent.action.MAIN");
+            i.putExtra("isRunning", false);
             this.sendBroadcast(i);
         }
     }
@@ -157,8 +151,7 @@ public class AccelerometerService extends Service implements SensorEventListener
     public void onDestroy() {
         super.onDestroy();
         sensorManager.unregisterListener(this);
-
-        Log.d("onDestroy", "onDestroy service STOP ed");
+        Log.d("onDestroy", "onDestroy service STOPPED");
     }
 
 }

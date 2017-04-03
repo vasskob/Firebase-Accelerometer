@@ -9,8 +9,7 @@ import java.util.Map;
 @IgnoreExtraProperties
 public class Coordinates {
 
-    public String uid;
-    public String sessid;
+
     public String recordTime;
     public int coordinateX;
     public int coordinateY;
@@ -21,9 +20,8 @@ public class Coordinates {
         // Default constructor required for calls to DataSnapshot.getValue(Coordinates.class)
     }
 
-    public Coordinates(String uid, String sessid, String time, int coordinateX, int coordinateY, int coordinateZ) {
-        this.uid = uid;
-        this.sessid = sessid;
+    public Coordinates(String time, int coordinateX, int coordinateY, int coordinateZ) {
+
         this.recordTime = time;
         this.coordinateX = coordinateX;
         this.coordinateY = coordinateY;
@@ -33,8 +31,6 @@ public class Coordinates {
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put("uid", uid);
-        result.put("sessid", sessid);
         result.put("recordTime", recordTime);
         result.put("coordinateX", coordinateX);
         result.put("coordinateY", coordinateY);

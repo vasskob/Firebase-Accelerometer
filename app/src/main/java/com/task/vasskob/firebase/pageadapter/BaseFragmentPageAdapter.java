@@ -8,13 +8,14 @@ import android.support.v4.app.FragmentPagerAdapter;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.fragment.ChartFragment;
 import com.task.vasskob.firebase.fragment.ResentDataFragment;
+import com.task.vasskob.firebase.fragment.SessionListFragment;
 
-public abstract class BaseFragmentPageAdapter extends FragmentPagerAdapter {
+abstract class BaseFragmentPageAdapter extends FragmentPagerAdapter {
 
     private final Fragment[] mFragments;
     private final String[] mFragmentNames;
 
-    public BaseFragmentPageAdapter(FragmentManager fm, Context context) {
+    BaseFragmentPageAdapter(FragmentManager fm, Context context) {
         super(fm);
         mFragments = new Fragment[]{
                 new ResentDataFragment(),
@@ -41,4 +42,5 @@ public abstract class BaseFragmentPageAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         return mFragmentNames[position];
     }
+
 }

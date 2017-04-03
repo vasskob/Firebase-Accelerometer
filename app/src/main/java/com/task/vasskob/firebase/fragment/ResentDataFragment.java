@@ -2,7 +2,7 @@ package com.task.vasskob.firebase.fragment;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
-import com.task.vasskob.firebase.MainActivity;
+import com.task.vasskob.firebase.DetailActivity;
 
 public class ResentDataFragment extends ListFragment {
     public ResentDataFragment() {
@@ -10,7 +10,7 @@ public class ResentDataFragment extends ListFragment {
 
     @Override
     public Query getQuery(DatabaseReference databaseReference) {
-        return databaseReference.child("user-coordinates").
-                child(((MainActivity) getActivity()).getUid()).limitToLast(100);
+        return databaseReference.child("users-sessions-coordinates").
+                child(((DetailActivity) getActivity()).getUid()).child(((DetailActivity)getActivity()).sessionId).limitToLast(100);
     }
 }

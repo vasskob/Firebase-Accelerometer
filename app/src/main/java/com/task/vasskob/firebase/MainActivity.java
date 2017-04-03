@@ -5,13 +5,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,9 +15,8 @@ import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.task.vasskob.firebase.fragment.SessionListFragment;
 import com.task.vasskob.firebase.fragment.TimePickerFragment;
-import com.task.vasskob.firebase.pageadapter.LandscapeFragmentPageAdapter;
-import com.task.vasskob.firebase.pageadapter.PortraitFragmentPageAdapter;
 import com.task.vasskob.firebase.service.AccelerometerService;
 
 import butterknife.Bind;
@@ -34,13 +29,8 @@ public class MainActivity extends BaseActivity {
     public String startTime;
     private BroadcastReceiver mReceiver;
 
-    // private static final String TAG = "MainActivity";
+// private static final String TAG = "MainActivity";
 
-    @Bind(R.id.container)
-    ViewPager mViewPager;
-
-    @Bind(R.id.tabs)
-    TabLayout tabLayout;
 
     @Bind(R.id.fab_run_service)
     public FloatingActionButton fab;
@@ -52,21 +42,9 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        int orientation = this.getResources().getConfiguration().orientation;
-        // Create the adapter that will return a fragment for each section
-        FragmentPagerAdapter mPagerAdapter;
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            mPagerAdapter = new PortraitFragmentPageAdapter(getSupportFragmentManager(), this);
-            tabLayout.setVisibility(View.VISIBLE);
-        } else {
-            mPagerAdapter = new LandscapeFragmentPageAdapter(getSupportFragmentManager(), this);
-            tabLayout.setVisibility(View.GONE);
-        }
-
-        // Set up the ViewPager with the sections adapter.
-        mViewPager.setAdapter(mPagerAdapter);
-        tabLayout.setupWithViewPager(mViewPager);
-
+        SessionListFragment sessionListFragment= new SessionListFragment();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, sessionListFragment).commit();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,10 +68,7 @@ public class MainActivity extends BaseActivity {
                 }
             }
         });
-
-
     }
-
 
     public void setFabColorAndIcon(int fabColor, int fabIcon) {
         fab.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, fabColor));
@@ -136,11 +111,10 @@ public class MainActivity extends BaseActivity {
             case R.id.start_recording_time:
                 TimePickerFragment dialogFragment = new TimePickerFragment();
                 dialogFragment.show(getFragmentManager(), getResources().getString(R.string.choose_time));
-
-
                 break;
             case R.id.clean_db:
-                FirebaseDatabase.getInstance().getReference().getRoot().child("user-coordinates").child(getUid()).removeValue();
+                FirebaseDatabase.getInstance().getReference().getRoot().child("users-sessions-coordinates").child(getUid()).removeValue();
+                FirebaseDatabase.getInstance().getReference().getRoot().child("sessions").child(getUid()).removeValue();
             case R.id.action_logout:
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(this, SignInActivity.class));
@@ -160,15 +134,16 @@ public class MainActivity extends BaseActivity {
                 "android.intent.action.MAIN");
 
         mReceiver = new BroadcastReceiver() {
-
             @Override
             public void onReceive(Context context, Intent intent) {
-                setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
-                isRunning=false;
+
+                    setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
+                    isRunning = false;
+
             }
         };
-        //registering our receiver
         this.registerReceiver(mReceiver, intentFilter);
+        Log.d("mReceiver", "MainActivity onResume");
     }
 
     @Override

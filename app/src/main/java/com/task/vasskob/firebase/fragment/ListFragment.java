@@ -15,7 +15,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.model.Coordinates;
-import com.task.vasskob.firebase.viewholder.DataViewHolder;
+import com.task.vasskob.firebase.viewholder.CoordViewHolder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -27,10 +27,7 @@ public abstract class ListFragment extends Fragment {
     RecyclerView recyclerView;
 
     private DatabaseReference mDatabase;
-    private FirebaseRecyclerAdapter<Coordinates, DataViewHolder> mAdapter;
-
-    private RecyclerView mRecycler;
-
+    private FirebaseRecyclerAdapter<Coordinates, CoordViewHolder> mAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -38,10 +35,6 @@ public abstract class ListFragment extends Fragment {
         ButterKnife.bind(this, rootView);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        mRecycler = (RecyclerView) rootView.findViewById(R.id.recycle_view);
-        mRecycler.setHasFixedSize(true);
-
         return rootView;
     }
 
@@ -52,30 +45,20 @@ public abstract class ListFragment extends Fragment {
 
         // Set up Layout Manager, reverse layout
         LinearLayoutManager mManager = new LinearLayoutManager(getActivity());
-        mManager.setReverseLayout(true);
-        mManager.setStackFromEnd(true);
-        mRecycler.setLayoutManager(mManager);
+//        mManager.setReverseLayout(true);
+//        mManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(mManager);
 
         // Set up FirebaseRecyclerAdapter with the Query
         Query coordinatesQuery = getQuery(mDatabase);
-        mAdapter = new FirebaseRecyclerAdapter<Coordinates, DataViewHolder>
-                (Coordinates.class, R.layout.list_item,DataViewHolder.class, coordinatesQuery) {
+        mAdapter = new FirebaseRecyclerAdapter<Coordinates, CoordViewHolder>
+                (Coordinates.class, R.layout.coord_list_item, CoordViewHolder.class, coordinatesQuery) {
             @Override
-            protected void populateViewHolder(DataViewHolder viewHolder, final Coordinates coord, int position) {
-                final DatabaseReference coordRef = getRef(position);
-
-                // Bind Coordinates to ViewHolder, setting OnClickListener for the star button
+            protected void populateViewHolder(CoordViewHolder viewHolder, final Coordinates coord, int position) {
                 viewHolder.bindToCoordinates(coord);
-              //// TODO: 01.04.17 need change request to correct child
-//                DatabaseReference userCoordinatesRef = mDatabase.child("users-sessions-coordinates").child(coord.uid).child(coordRef.getKey());
-
-                mDatabase.child("users-sessions-coordinates").
-                        child(coord.uid).child(coord.sessid).child(coordRef.getKey());
-
             }
-
         };
-        mRecycler.setAdapter(mAdapter);
+        recyclerView.setAdapter(mAdapter);
 
     }
 
@@ -88,4 +71,5 @@ public abstract class ListFragment extends Fragment {
     }
 
     public abstract Query getQuery(DatabaseReference databaseReference);
+
 }

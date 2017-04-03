@@ -14,14 +14,14 @@ public class Session {
     public String startTime;
     public int interval;
     public int duration;
-    public String userId;
+    public String id;
 
     public Session() {
         // Default constructor required for calls to DataSnapshot.getValue(Coordinates.class)
     }
 
-    public Session(String userId, int interval, int duration, String startTime) {
-       this.userId = userId;
+    public Session(String id, int interval, int duration, String startTime) {
+       this.id = id;
         this.interval = interval;
         this.duration = duration;
         this.startTime = startTime;
@@ -32,7 +32,7 @@ public class Session {
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put("uid", userId);
+        result.put("id", id);
         result.put("interval", interval);
         result.put("duration", duration);
         result.put("startTime", startTime);
