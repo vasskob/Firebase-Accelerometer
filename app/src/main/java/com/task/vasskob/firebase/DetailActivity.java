@@ -17,6 +17,7 @@ import butterknife.ButterKnife;
 public class DetailActivity extends BaseActivity {
 
     public String sessionId;
+    public String userId;
 
     @Bind(R.id.container)
     ViewPager mViewPager;
@@ -44,6 +45,7 @@ public class DetailActivity extends BaseActivity {
         tabLayout.setupWithViewPager(mViewPager);
         Intent intent=getIntent();
         sessionId=intent.getExtras().getString("sessionId");
+
 
     }
 }

@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +15,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.task.vasskob.firebase.DetailActivity;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.model.Coordinates;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -30,15 +33,13 @@ import lecho.lib.hellocharts.model.PointValue;
 
 import static android.graphics.Color.GREEN;
 
-// https://github.com/lecho/hellocharts-android
 
 public class ChartFragment extends Fragment {
-    private long timestamp = 1000000;
-    private int coordX = 5;
+
     @Bind(R.id.chart)
     lecho.lib.hellocharts.view.LineChartView chartView;
-    private List<Coordinates> questionList;
-    private DatabaseReference mDatabase;
+
+    private Map<String, Coordinates> map;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -47,22 +48,7 @@ public class ChartFragment extends Fragment {
 
         chartView.setViewportCalculationEnabled(true);
         chartView.setZoomEnabled(false);
-
-//        chartView.setOnValueTouchListener(new LineChartOnValueSelectListener() {
-//            @Override
-//            public void onValueSelected(int lineIndex, int pointIndex, PointValue value) {
-//                Toast.makeText(getActivity(), "Selected: " + value, Toast.LENGTH_SHORT).show();
-//            }
-//
-//            @Override
-//            public void onValueDeselected() {
-//
-//            }
-//        });
-
         loadCoordinates();
-
-
         return rootView;
     }
 
@@ -85,10 +71,17 @@ public class ChartFragment extends Fragment {
         List<PointValue> valuesY = new ArrayList<>();
         List<PointValue> valuesZ = new ArrayList<>();
 
-        for (int i=0; i< questionList.size(); i++){
-            valuesX.add (new PointValue(questionList.get(i).recordTime, questionList.get(i).coordinateX));
-            valuesY.add (new PointValue(questionList.get(i).recordTime, questionList.get(i).coordinateY));
-            valuesZ.add (new PointValue(questionList.get(i).recordTime, questionList.get(i).coordinateZ));
+        for (Map.Entry<String, Coordinates> entry : map.entrySet()) {
+            Coordinates value = entry.getValue();
+
+            float time = value.recordTime - map.values().iterator().next().recordTime ;
+            valuesX.add(new PointValue(time, value.coordinateX));
+            valuesY.add(new PointValue(time, value.coordinateY));
+            valuesZ.add(new PointValue(time, value.coordinateZ));
+        }
+        for (int i = 0; i < valuesX.size(); i++) {
+
+            Log.d("!!!!!!!1", "setChartView valueX= " + valuesY.get(i));
         }
 
 
@@ -124,7 +117,7 @@ public class ChartFragment extends Fragment {
         LineChartData data = new LineChartData();
         data.setLines(lines);
 
-        Axis axisT = new Axis(axisValues).setHasTiltedLabels(true);
+        Axis axisT = new Axis().setHasTiltedLabels(true);
         Axis axisXYZ = new Axis().setHasLines(true).setHasTiltedLabels(true);
         axisT.setName("Axis T");
         axisXYZ.setName("Axis X, Y, Z");
@@ -136,20 +129,22 @@ public class ChartFragment extends Fragment {
     }
 
     private void loadCoordinates() {
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("users-sessions-coordinates").child(((DetailActivity) getActivity()).getUid()).child(((DetailActivity) getActivity()).sessionId);
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                GenericTypeIndicator<List<Coordinates>> t = new GenericTypeIndicator<List<Coordinates>>() {
-                };
-                questionList = dataSnapshot.getValue(t);
+                GenericTypeIndicator<Map<String, Coordinates>> t = new
+                        GenericTypeIndicator<Map<String, Coordinates>>() {};
+                map = dataSnapshot.getValue(t);
                 setChartView();
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
+
     }
+
+
+
 }
