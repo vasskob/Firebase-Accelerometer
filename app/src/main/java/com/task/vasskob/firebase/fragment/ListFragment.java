@@ -22,7 +22,7 @@ import butterknife.ButterKnife;
 
 public abstract class ListFragment extends Fragment {
 
-    private static final String TAG = ListFragment.class.getSimpleName();
+    //  private static final String TAG = ListFragment.class.getSimpleName();
     @Bind(R.id.recycle_view)
     RecyclerView recyclerView;
 
@@ -42,11 +42,7 @@ public abstract class ListFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-
-        // Set up Layout Manager, reverse layout
         LinearLayoutManager mManager = new LinearLayoutManager(getActivity());
-//        mManager.setReverseLayout(true);
-//        mManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(mManager);
 
         // Set up FirebaseRecyclerAdapter with the Query

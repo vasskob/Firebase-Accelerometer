@@ -106,6 +106,7 @@ public class AccelerometerService extends Service implements SensorEventListener
                         User user = dataSnapshot.getValue(User.class);
                         if (user != null) {
                             sendDataToFirebase(userId, getFormattedCurrentTime(), ex, ey, ez);
+
                         }
                     }
                     @Override
@@ -115,7 +116,6 @@ public class AccelerometerService extends Service implements SensorEventListener
                 }
         );
     }
-
 
     private void sendDataToFirebase(String userId, String recordTime, int ex, int ey, int ez) {
         long currentTime = System.currentTimeMillis();
@@ -133,6 +133,7 @@ public class AccelerometerService extends Service implements SensorEventListener
 
             mDatabase.updateChildren(childUpdates);
             lastUpdateTime = currentTime;
+
         }
         if ((currentTime - startTime) > duration * Constants.SEC_TO_MILISEC) {
             stopSelf();

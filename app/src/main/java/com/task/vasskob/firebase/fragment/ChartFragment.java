@@ -4,11 +4,16 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.task.vasskob.firebase.R;
+import com.task.vasskob.firebase.model.Coordinates;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +21,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
@@ -25,7 +31,8 @@ import static android.graphics.Color.GREEN;
 // https://github.com/lecho/hellocharts-android
 
 public class ChartFragment extends Fragment {
-
+    private long timestamp = 1000000;
+    private int coordX = 5;
     @Bind(R.id.chart)
     lecho.lib.hellocharts.view.LineChartView chartView;
 
@@ -61,46 +68,44 @@ public class ChartFragment extends Fragment {
 
     }
 
+//    https://github.com/lecho/hellocharts-android/issues/135
+//    Axis.setMaxLabelChars(int),
+//    https://github.com/lecho/hellocharts-android/issues/63
+
+//    https://github.com/PhilJay/MPAndroidChart/issues/789
+//    https://firebase.google.com/docs/database/android/read-and-write
+
     private void setChartView() {
 
         List<PointValue> valuesX = new ArrayList<>();
-        valuesX.add(new PointValue(1, 1));
-        valuesX.add(new PointValue(2, 5));
-        valuesX.add(new PointValue(3, 3));
-        valuesX.add(new PointValue(4, 7));
-        valuesX.add(new PointValue(5, -3));
-        valuesX.add(new PointValue(6, 0));
-        valuesX.add(new PointValue(7, 5));
-        valuesX.add(new PointValue(8, 7));
-
 
         List<PointValue> valuesY = new ArrayList<>();
-        valuesY.add(new PointValue(0, 8));
-        valuesY.add(new PointValue(1, 2));
-        valuesY.add(new PointValue(2, -4));
-        valuesY.add(new PointValue(3, 7));
-        valuesY.add(new PointValue(4, 1));
-        valuesY.add(new PointValue(5, 5));
-        valuesY.add(new PointValue(6, 7));
-        valuesY.add(new PointValue(7, 0));
-
+        valuesY.add(new PointValue(timestamp, coordX));
+        valuesY.add(new PointValue(timestamp + 1000, coordX + 2));
+        valuesY.add(new PointValue(timestamp + 2000, coordX + 1));
+        valuesY.add(new PointValue(timestamp + 3000, coordX - 2));
+        valuesY.add(new PointValue(timestamp + 5400, coordX + 3));
 
         List<PointValue> valuesZ = new ArrayList<>();
-        valuesZ.add(new PointValue(0, 4));
-        valuesZ.add(new PointValue(1, 5));
-        valuesZ.add(new PointValue(2, 2));
-        valuesZ.add(new PointValue(3, 0));
-        valuesZ.add(new PointValue(4, 4));
-        valuesZ.add(new PointValue(5, 2));
-        valuesZ.add(new PointValue(6, 7));
-        valuesZ.add(new PointValue(7, 9));
+
+        List<Coordinates> coordinates = new ArrayList<>();
 
 
+        List<AxisValue> axisValues = new ArrayList<>();
+//        for (int i = 0; i < mData.size(); ++i) {
+//            DataItem dataItem = mData.getItem(i);
+//            DateTime recordedAt = dataItem.getRecordedAt();
+//            String formattedRecordedAt = DateTimeFormatter.getFormattedDateTime(recordedAt);
+//            int yValue = dataItem.getYValue();
+//            yValues.add(new PointValue(recordedAt.toMiliseconds(), yValue)); //use recordedAt timestamp/day of the year number or something like that as x value
+//            AxisValue axisValue = new AxisValue(recordedAt.toMiliseconds());
+//            axisValue.setLabel(formattedRecordedAt);
+//            axisValues.add(axisValue);
+//        }
         //In most cased you can call data model methods in builder-pattern-like manner.
         Line lineX = new Line(valuesX).setColor(Color.RED).setCubic(true);
         lineX.setStrokeWidth(3);
         lineX.setPointRadius(4);
-
 
         Line lineY = new Line(valuesY).setColor(GREEN).setCubic(true);
         lineY.setStrokeWidth(3);
@@ -118,7 +123,8 @@ public class ChartFragment extends Fragment {
         LineChartData data = new LineChartData();
         data.setLines(lines);
 
-        Axis axisT = new Axis();
+
+        Axis axisT = new Axis(axisValues).setHasTiltedLabels(true);
         Axis axisXYZ = new Axis().setHasLines(true).setHasTiltedLabels(true);
 
 
@@ -129,6 +135,21 @@ public class ChartFragment extends Fragment {
         data.setAxisYLeft(axisXYZ);
 
         chartView.setLineChartData(data);
+    }
 
+    private  void loadCoordinates(){
+
+        ValueEventListener eventListener= new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Coordinates coordinates1=dataSnapshot.getValue(Coordinates.class);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("AsseleromService", "loadCoord:onCancelled", databaseError.toException());
+            }
+        };
     }
 }
