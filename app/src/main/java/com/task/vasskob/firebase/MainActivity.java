@@ -29,9 +29,6 @@ public class MainActivity extends BaseActivity {
     public String startTime;
     private BroadcastReceiver mReceiver;
 
-// private static final String TAG = "MainActivity";
-
-
     @Bind(R.id.fab_run_service)
     public FloatingActionButton fab;
     private boolean isRunning = false;

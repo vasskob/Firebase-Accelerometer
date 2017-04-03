@@ -50,9 +50,6 @@ public class AccelerometerService extends Service implements SensorEventListener
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         startTime = System.currentTimeMillis();
-
-        sessionKey = mDatabase.child("sessions").push().getKey();
-
     }
 
     @Override
@@ -64,6 +61,7 @@ public class AccelerometerService extends Service implements SensorEventListener
     public int onStartCommand(Intent intent, int flags, int startId) {
         Bundle extras = intent.getBundleExtra(Constants.OPTIONS_KEY);
         initOptions(extras);
+        initSession();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -72,12 +70,17 @@ public class AccelerometerService extends Service implements SensorEventListener
             interval = extras.getInt(Constants.INTERVAL_KEY);
             duration = extras.getInt(Constants.DURATION_KEY);
             userId = extras.getString(Constants.USER_ID);
-            session = new Session(sessionKey, interval, duration,
-                    getFormattedCurrentTime());
             Log.d("initOptions ", "SERVICE extras = " + interval + " " + startTime + " " + duration);
         } else {
             Log.d("initOptions ", "bundle is NULL !!!!!!!!! ");
         }
+    }
+
+    private void initSession() {
+        sessionKey = mDatabase.child("sessions").push().getKey();
+        session = new Session(sessionKey, interval, duration,
+                getFormattedCurrentTime());
+        mDatabase.child("sessions").child(userId).child(sessionKey).setValue(session.toMap());
     }
 
     private String getFormattedCurrentTime() {
@@ -117,23 +120,15 @@ public class AccelerometerService extends Service implements SensorEventListener
         );
     }
 
-    private void sendDataToFirebase(String userId, String recordTime, int ex, int ey, int ez) {
+    private void sendDataToFirebase(String userKey, String recordTime, int ex, int ey, int ez) {
         long currentTime = System.currentTimeMillis();
         if ((currentTime - lastUpdateTime) > interval * Constants.SEC_TO_MILISEC) {
 
             String coordinateKey = mDatabase.child("coordinates").push().getKey();
 
             Coordinates coordinates = new Coordinates(recordTime, ex, ey, ez);
-            Map<String, Object> coordValues = coordinates.toMap();
-            Map<String, Object> sessionValues = session.toMap();
-            Map<String, Object> childUpdates = new HashMap<>();
-
-            childUpdates.put("/sessions/" + userId + "/" + sessionKey, sessionValues);
-            childUpdates.put("/users-sessions-coordinates/" + userId + "/" + sessionKey + "/" + coordinateKey, coordValues);
-
-            mDatabase.updateChildren(childUpdates);
+            mDatabase.child("users-sessions-coordinates").child(userKey).child(sessionKey).child(coordinateKey).setValue(coordinates.toMap());
             lastUpdateTime = currentTime;
-
         }
         if ((currentTime - startTime) > duration * Constants.SEC_TO_MILISEC) {
             stopSelf();
