@@ -56,6 +56,7 @@ public abstract class ListFragment extends Fragment {
         };
         recyclerView.setAdapter(mAdapter);
 
+
     }
 
     @Override

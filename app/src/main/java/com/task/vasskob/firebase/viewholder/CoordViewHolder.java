@@ -22,7 +22,7 @@ public class CoordViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindToCoordinates(Coordinates coordinates) {
-        recordingTime.setText(coordinates.recordTime);
+        recordingTime.setText("time " + coordinates.recordTime);
         accelerometerData.setText("(" + coordinates.coordinateX + "," + coordinates.coordinateY + "," + coordinates.coordinateZ + ")");
     }
 }

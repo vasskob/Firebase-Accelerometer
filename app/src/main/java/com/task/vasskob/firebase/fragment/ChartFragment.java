@@ -4,13 +4,15 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.model.Coordinates;
@@ -35,6 +37,8 @@ public class ChartFragment extends Fragment {
     private int coordX = 5;
     @Bind(R.id.chart)
     lecho.lib.hellocharts.view.LineChartView chartView;
+    private List<Coordinates> questionList;
+    private DatabaseReference mDatabase;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -56,8 +60,8 @@ public class ChartFragment extends Fragment {
 //            }
 //        });
 
+        loadCoordinates();
 
-        setChartView();
 
         return rootView;
     }
@@ -78,17 +82,14 @@ public class ChartFragment extends Fragment {
     private void setChartView() {
 
         List<PointValue> valuesX = new ArrayList<>();
-
         List<PointValue> valuesY = new ArrayList<>();
-        valuesY.add(new PointValue(timestamp, coordX));
-        valuesY.add(new PointValue(timestamp + 1000, coordX + 2));
-        valuesY.add(new PointValue(timestamp + 2000, coordX + 1));
-        valuesY.add(new PointValue(timestamp + 3000, coordX - 2));
-        valuesY.add(new PointValue(timestamp + 5400, coordX + 3));
-
         List<PointValue> valuesZ = new ArrayList<>();
 
-        List<Coordinates> coordinates = new ArrayList<>();
+        for (int i=0; i< questionList.size(); i++){
+            valuesX.add (new PointValue(questionList.get(i).recordTime, questionList.get(i).coordinateX));
+            valuesY.add (new PointValue(questionList.get(i).recordTime, questionList.get(i).coordinateY));
+            valuesZ.add (new PointValue(questionList.get(i).recordTime, questionList.get(i).coordinateZ));
+        }
 
 
         List<AxisValue> axisValues = new ArrayList<>();
@@ -123,33 +124,32 @@ public class ChartFragment extends Fragment {
         LineChartData data = new LineChartData();
         data.setLines(lines);
 
-
         Axis axisT = new Axis(axisValues).setHasTiltedLabels(true);
         Axis axisXYZ = new Axis().setHasLines(true).setHasTiltedLabels(true);
-
-
         axisT.setName("Axis T");
         axisXYZ.setName("Axis X, Y, Z");
 
         data.setAxisXBottom(axisT);
         data.setAxisYLeft(axisXYZ);
-
         chartView.setLineChartData(data);
+
     }
 
-    private  void loadCoordinates(){
-
-        ValueEventListener eventListener= new ValueEventListener() {
+    private void loadCoordinates() {
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Coordinates coordinates1=dataSnapshot.getValue(Coordinates.class);
-
+                GenericTypeIndicator<List<Coordinates>> t = new GenericTypeIndicator<List<Coordinates>>() {
+                };
+                questionList = dataSnapshot.getValue(t);
+                setChartView();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.w("AsseleromService", "loadCoord:onCancelled", databaseError.toException());
+
             }
-        };
+        });
     }
 }
