@@ -39,7 +39,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        SessionListFragment sessionListFragment= new SessionListFragment();
+        SessionListFragment sessionListFragment = new SessionListFragment();
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, sessionListFragment).commit();
 
@@ -65,6 +65,22 @@ public class MainActivity extends BaseActivity {
                 }
             }
         });
+        registerBroadcast();
+    }
+
+    private void registerBroadcast() {
+        IntentFilter intentFilter = new IntentFilter(
+                "android.intent.action.MAIN");
+
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d("mReceiver", "MainActivity onResume");
+                setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
+                isRunning = false;
+            }
+        };
+        this.registerReceiver(mReceiver, intentFilter);
     }
 
     public void setFabColorAndIcon(int fabColor, int fabIcon) {
@@ -120,32 +136,13 @@ public class MainActivity extends BaseActivity {
             default:
                 return false;
         }
-        Log.d("NDA", " interval = " + interval + " duration = " + duration + " start Time = " + startTime);
+        Log.d("Options", " interval = " + interval + " duration = " + duration + " start Time = " + startTime);
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        IntentFilter intentFilter = new IntentFilter(
-                "android.intent.action.MAIN");
-
-        mReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                    setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
-                    isRunning = false;
-
-            }
-        };
-        this.registerReceiver(mReceiver, intentFilter);
-        Log.d("mReceiver", "MainActivity onResume");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         this.unregisterReceiver(this.mReceiver);
     }
 }

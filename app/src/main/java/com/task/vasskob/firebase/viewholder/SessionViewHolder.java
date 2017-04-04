@@ -7,19 +7,23 @@ import android.widget.TextView;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.model.Session;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 public class SessionViewHolder extends RecyclerView.ViewHolder {
 
-   public View mView;
-    private TextView sessionStartTime;
-    private TextView sessionDuration;
-    private TextView sessionInterval;
+    public View mView;
+    @Bind(R.id.session_start_time)
+    TextView sessionStartTime;
+    @Bind(R.id.session_duration)
+    TextView sessionDuration;
+    @Bind(R.id.session_interval)
+    TextView sessionInterval;
 
     public SessionViewHolder(View itemView) {
         super(itemView);
-        sessionStartTime = (TextView) itemView.findViewById(R.id.session_start_time);
-        sessionDuration = (TextView) itemView.findViewById(R.id.session_duration);
-        sessionInterval = (TextView) itemView.findViewById(R.id.session_interval);
-        mView=itemView;
+        ButterKnife.bind(this, itemView);
+        mView = itemView;
     }
 
     public void bindToSessions(Session session) {

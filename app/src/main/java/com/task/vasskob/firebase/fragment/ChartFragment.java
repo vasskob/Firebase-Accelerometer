@@ -2,7 +2,6 @@ package com.task.vasskob.firebase.fragment;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,13 +19,15 @@ import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.model.Coordinates;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lecho.lib.hellocharts.model.Axis;
-import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
@@ -40,6 +41,7 @@ public class ChartFragment extends Fragment {
     lecho.lib.hellocharts.view.LineChartView chartView;
 
     private Map<String, Coordinates> map;
+    private List<Coordinates> coordinatesList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -52,51 +54,16 @@ public class ChartFragment extends Fragment {
         return rootView;
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-    }
-
-//    https://github.com/lecho/hellocharts-android/issues/135
-//    Axis.setMaxLabelChars(int),
-//    https://github.com/lecho/hellocharts-android/issues/63
-
-//    https://github.com/PhilJay/MPAndroidChart/issues/789
-//    https://firebase.google.com/docs/database/android/read-and-write
-
     private void setChartView() {
 
         List<PointValue> valuesX = new ArrayList<>();
         List<PointValue> valuesY = new ArrayList<>();
         List<PointValue> valuesZ = new ArrayList<>();
 
-        for (Map.Entry<String, Coordinates> entry : map.entrySet()) {
-            Coordinates value = entry.getValue();
-
-            float time = value.recordTime - map.values().iterator().next().recordTime ;
-            valuesX.add(new PointValue(time, value.coordinateX));
-            valuesY.add(new PointValue(time, value.coordinateY));
-            valuesZ.add(new PointValue(time, value.coordinateZ));
+        if (map != null) {
+            HashMap<String, Coordinates> copy = new HashMap<>(map);
+            coordinatesList = sortCoordinatesMap(copy);
         }
-        for (int i = 0; i < valuesX.size(); i++) {
-
-            Log.d("!!!!!!!1", "setChartView valueX= " + valuesY.get(i));
-        }
-
-
-        List<AxisValue> axisValues = new ArrayList<>();
-//        for (int i = 0; i < mData.size(); ++i) {
-//            DataItem dataItem = mData.getItem(i);
-//            DateTime recordedAt = dataItem.getRecordedAt();
-//            String formattedRecordedAt = DateTimeFormatter.getFormattedDateTime(recordedAt);
-//            int yValue = dataItem.getYValue();
-//            yValues.add(new PointValue(recordedAt.toMiliseconds(), yValue)); //use recordedAt timestamp/day of the year number or something like that as x value
-//            AxisValue axisValue = new AxisValue(recordedAt.toMiliseconds());
-//            axisValue.setLabel(formattedRecordedAt);
-//            axisValues.add(axisValue);
-//        }
-        //In most cased you can call data model methods in builder-pattern-like manner.
         Line lineX = new Line(valuesX).setColor(Color.RED).setCubic(true);
         lineX.setStrokeWidth(3);
         lineX.setPointRadius(4);
@@ -108,6 +75,15 @@ public class ChartFragment extends Fragment {
         Line lineZ = new Line(valuesZ).setColor(Color.BLUE).setCubic(true);
         lineZ.setStrokeWidth(3);
         lineZ.setPointRadius(4);
+
+        for (int i = 0; i < coordinatesList.size(); i++) {
+
+            float startTimeInSec = (coordinatesList.get(i).recordTime - coordinatesList.get(0).recordTime) / 1000;
+            valuesX.add(new PointValue(startTimeInSec, coordinatesList.get(i).coordinateX));
+            valuesY.add(new PointValue(startTimeInSec, coordinatesList.get(i).coordinateY));
+            valuesZ.add(new PointValue(startTimeInSec, coordinatesList.get(i).coordinateZ));
+            Log.d("ChartFragment", "setChartView valueX= " + valuesX.get(i));
+        }
 
         List<Line> lines = new ArrayList<>();
         lines.add(lineX);
@@ -126,25 +102,45 @@ public class ChartFragment extends Fragment {
         data.setAxisYLeft(axisXYZ);
         chartView.setLineChartData(data);
 
+
     }
 
     private void loadCoordinates() {
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("users-sessions-coordinates").child(((DetailActivity) getActivity()).getUid()).child(((DetailActivity) getActivity()).sessionId);
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().
+                child("users-sessions-coordinates").child(((DetailActivity) getActivity()).getUid()).
+                child(((DetailActivity) getActivity()).sessionId);
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator<Map<String, Coordinates>> t = new
-                        GenericTypeIndicator<Map<String, Coordinates>>() {};
+                        GenericTypeIndicator<Map<String, Coordinates>>() {
+                        };
                 map = dataSnapshot.getValue(t);
                 setChartView();
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                Log.e("ChartFragment", "loadCoordinates onCancelled  " + databaseError);
             }
         });
 
     }
 
-
+    public static List<Coordinates> sortCoordinatesMap(
+            HashMap<String, Coordinates> map
+    ) {
+        if (map != null) {
+            List<Coordinates> values = new ArrayList<>();
+            values.addAll(map.values());
+            Collections.sort(values, new Comparator<Coordinates>() {
+                public int compare(Coordinates o1, Coordinates o2) {
+                    return Long.compare(o1.recordTime, o2.recordTime);
+                }
+            });
+            return values;
+        }
+        return null;
+    }
 
 }

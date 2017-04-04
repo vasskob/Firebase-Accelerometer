@@ -7,22 +7,28 @@ import android.widget.TextView;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.model.Coordinates;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 public class CoordViewHolder extends RecyclerView.ViewHolder {
 
-    private TextView recordingTime;
-    private TextView accelerometerData;
+    @Bind(R.id.data_time)
+    TextView recordingTime;
+
+    @Bind(R.id.data_value)
+    TextView accelerometerData;
 
     public CoordViewHolder(View itemView) {
         super(itemView);
-
-        recordingTime = (TextView) itemView.findViewById(R.id.data_time);
-        accelerometerData = (TextView) itemView.findViewById(R.id.data_value);
-
-
+        ButterKnife.bind(this, itemView);
     }
 
     public void bindToCoordinates(Coordinates coordinates) {
-        recordingTime.setText("time " + coordinates.recordTime);
+        String formattedTime = new SimpleDateFormat("MM/dd/yyyy_HH:mm:ss", Locale.US).format(coordinates.recordTime);
+        recordingTime.setText(formattedTime);
         accelerometerData.setText("(" + coordinates.coordinateX + "," + coordinates.coordinateY + "," + coordinates.coordinateZ + ")");
     }
 }

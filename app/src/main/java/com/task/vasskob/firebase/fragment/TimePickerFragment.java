@@ -49,7 +49,7 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
         long delayInMinutes;
 
         if (currentMinutes <= selectMinutes) {
-            delayInMinutes = selectMinutes - currentMinutes;
+            delayInMinutes = selectMinutes - currentMinutes ;
 
         } else {
             delayInMinutes = selectMinutes + Constants.DAY_TO_MINUTES - currentMinutes;
@@ -63,7 +63,7 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
         intent.putExtra(Constants.OPTIONS_KEY, bundle);
         PendingIntent pendingIntent = PendingIntent.getService(getActivity(), 0, intent, 0);
         AlarmManager alarm = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-        alarm.set(AlarmManager.RTC, System.currentTimeMillis() + delayInMinutes * Constants.MIN_TO_MILISEC, pendingIntent);
+        alarm.set(AlarmManager.RTC, System.currentTimeMillis() + delayInMinutes * Constants.MIN_TO_SEC * Constants.SEC_TO_MILISEC, pendingIntent);
 
         Log.d("runServiceOnTime", " DELAY = " + delayInMinutes + "min !!!!!!! selectMinutes = " + selectMinutes + " currentMin = " + currentMinutes);
     }

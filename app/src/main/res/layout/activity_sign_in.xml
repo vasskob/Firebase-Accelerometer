@@ -16,6 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:contentDescription="@string/app_name"
         android:src="@drawable/firebase_lockup_400" />
 
     <LinearLayout
@@ -24,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/icon"
         android:layout_marginLeft="50dp"
+        android:layout_marginStart="50dp"
         android:layout_centerHorizontal="true"
         android:orientation="vertical">
 
@@ -61,14 +63,16 @@
             android:id="@+id/button_sign_in"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:text="@string/sign_in" />
+            android:text="@string/sign_in"
+            style="?android:attr/buttonBarButtonStyle"/>
 
 
         <Button
             android:id="@+id/button_sign_up"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:text="@string/sign_up" />
+            android:text="@string/sign_up"
+            style="?android:attr/buttonBarButtonStyle"/>
 
     </LinearLayout>
 

@@ -31,23 +31,21 @@ public class AccelerometerService extends Service implements SensorEventListener
     private DatabaseReference mDatabase;
     private String userId;
 
-    int interval = Constants.DEFAULT_INTERVAL;
-    int duration = Constants.DEFAULT_DURATION;
+    private int interval = Constants.DEFAULT_INTERVAL;
+    private int duration = Constants.DEFAULT_DURATION;
 
     private long lastUpdateTime = 0;
     private long startTime;
-    private Session session;
     private String sessionKey;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d("onCreate", "onCreate service START ed");
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         startTime = System.currentTimeMillis();
+        Log.d("onCreate", "onCreate service START ed");
     }
 
     @Override
@@ -76,7 +74,7 @@ public class AccelerometerService extends Service implements SensorEventListener
 
     private void initSession() {
         sessionKey = mDatabase.child("sessions").push().getKey();
-        session = new Session(sessionKey, interval, duration,
+        Session session = new Session(sessionKey, interval, duration,
                 getFormattedCurrentTime());
         mDatabase.child("sessions").child(userId).child(sessionKey).setValue(session.toMap());
     }
@@ -94,7 +92,7 @@ public class AccelerometerService extends Service implements SensorEventListener
             if (userId != null) {
                 submitData(ex, ey, ez);
             }
-            Log.d("onSensorChanged", "ACCELEROMETER COORD = " + ex + "," + ey + "," + ez);
+            Log.d(" onSensorChanged", "ACCELEROMETER COORD = " + ex + "," + ey + "," + ez);
         }
     }
 
@@ -106,10 +104,11 @@ public class AccelerometerService extends Service implements SensorEventListener
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User user = dataSnapshot.getValue(User.class);
                         if (user != null) {
-                            sendDataToFirebase(userId,  System.currentTimeMillis(), ex, ey, ez);
+                            sendDataToFirebase(userId, System.currentTimeMillis(), ex, ey, ez);
 
                         }
                     }
+
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
 

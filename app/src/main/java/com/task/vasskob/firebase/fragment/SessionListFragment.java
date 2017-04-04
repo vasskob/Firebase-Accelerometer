@@ -65,7 +65,6 @@ public class SessionListFragment extends Fragment {
                     public void onClick(View v) {
                         Intent intent = new Intent(getActivity(), DetailActivity.class);
                         intent.putExtra("sessionId", session.id);
-                        //mAdapter.getRef(position).toString());
                         startActivity(intent);
                     }
                 });
@@ -73,9 +72,7 @@ public class SessionListFragment extends Fragment {
         };
 
         recyclerView.setAdapter(mAdapter);
-
     }
-
 
     @Override
     public void onDestroy() {
