@@ -37,4 +37,9 @@
     <string name="duration">"duration %1$ds"</string>
     <string name="notification_title">Accelerometer collect your data</string>
     <string name="notification_text">Service is running</string>
+    <string name="load_file">Upload file</string>
+    <string name="run_accelerometer">Accelerometer</string>
+    <string name="upload_success">Upload finished</string>
+    <string name="upload_failure">Upload failed</string>
+    <string name="progress_uploading">Uploading…</string>
 </resources>
