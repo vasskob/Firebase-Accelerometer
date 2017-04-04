@@ -1,4 +1,4 @@
-package com.task.vasskob.firebase.fragment;
+package com.task.vasskob.firebase.ui.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,14 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.task.vasskob.firebase.DetailActivity;
-import com.task.vasskob.firebase.MainActivity;
 import com.task.vasskob.firebase.R;
+import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.model.Session;
-import com.task.vasskob.firebase.viewholder.SessionViewHolder;
+import com.task.vasskob.firebase.ui.DetailActivity;
+import com.task.vasskob.firebase.ui.MainActivity;
+import com.task.vasskob.firebase.ui.viewholder.SessionViewHolder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -30,7 +29,6 @@ public class SessionListFragment extends Fragment {
     @Bind(R.id.recycle_view)
     RecyclerView recyclerView;
 
-    private DatabaseReference mDatabase;
     private FirebaseRecyclerAdapter<Session, SessionViewHolder> mAdapter;
 
     @Override
@@ -38,7 +36,6 @@ public class SessionListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.list_fragment, parent, false);
         ButterKnife.bind(this, rootView);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
         return rootView;
     }
 
@@ -53,7 +50,7 @@ public class SessionListFragment extends Fragment {
         recyclerView.addItemDecoration(dividerItemDecoration);
 
         // Set up FirebaseRecyclerAdapter with the Query
-        Query sessionsQuery = getQuery(mDatabase);
+        Query sessionsQuery = getQuery();
 
         mAdapter = new FirebaseRecyclerAdapter<Session, SessionViewHolder>
                 (Session.class, R.layout.session_list_item, SessionViewHolder.class, sessionsQuery) {
@@ -82,9 +79,9 @@ public class SessionListFragment extends Fragment {
         }
     }
 
+    public Query getQuery() {
+        String uid= ((MainActivity) getActivity()).getUid();
+        return FirebaseOperations.getRefForSesChild(uid).limitToLast(100);
 
-    public Query getQuery(DatabaseReference databaseReference) {
-        return databaseReference.child("sessions").
-                child(((MainActivity) getActivity()).getUid()).limitToLast(100);
     }
 }

@@ -21,7 +21,7 @@
 -keepattributes EnclosingMethod
 -keepattributes InnerClasses
 
--keep class com.task.vasskob.firebase.viewholder.** {
+-keep class com.task.vasskob.firebase.ui.viewholder.** {
     *;
 }
 

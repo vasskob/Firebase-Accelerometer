@@ -1,4 +1,4 @@
-package com.task.vasskob.firebase;
+package com.task.vasskob.firebase.ui;
 
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -8,16 +8,17 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
-import com.task.vasskob.firebase.pageadapter.LandscapeFragmentPageAdapter;
-import com.task.vasskob.firebase.pageadapter.PortraitFragmentPageAdapter;
+import com.task.vasskob.firebase.R;
+import com.task.vasskob.firebase.ui.pageadapter.LandscapeFragmentPageAdapter;
+import com.task.vasskob.firebase.ui.pageadapter.PortraitFragmentPageAdapter;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class DetailActivity extends BaseActivity {
 
+    public static final String SESSION_ID = "sessionId";
     public String sessionId;
-    public String userId;
 
     @Bind(R.id.container)
     ViewPager mViewPager;
@@ -43,10 +44,9 @@ public class DetailActivity extends BaseActivity {
 
         mViewPager.setAdapter(mPagerAdapter);
         tabLayout.setupWithViewPager(mViewPager);
+
         Intent intent=getIntent();
-        sessionId=intent.getExtras().getString("sessionId");
-
-
+        sessionId=intent.getExtras().getString(SESSION_ID);
     }
 }
 

@@ -1,4 +1,4 @@
-package com.task.vasskob.firebase;
+package com.task.vasskob.firebase.ui;
 
 import android.app.ProgressDialog;
 import android.support.v7.app.AppCompatActivity;

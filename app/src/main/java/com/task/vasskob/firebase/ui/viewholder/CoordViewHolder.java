@@ -1,4 +1,4 @@
-package com.task.vasskob.firebase.viewholder;
+package com.task.vasskob.firebase.ui.viewholder;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

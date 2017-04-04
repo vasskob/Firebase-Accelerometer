@@ -1,5 +1,5 @@
 
-package com.task.vasskob.firebase;
+package com.task.vasskob.firebase.ui;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,15 +8,15 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
-import com.task.vasskob.firebase.fragment.SessionListFragment;
-import com.task.vasskob.firebase.fragment.TimePickerFragment;
+import com.task.vasskob.firebase.Constants;
+import com.task.vasskob.firebase.R;
+import com.task.vasskob.firebase.database.FirebaseOperations;
+import com.task.vasskob.firebase.ui.fragment.SessionListFragment;
+import com.task.vasskob.firebase.ui.fragment.TimePickerFragment;
 import com.task.vasskob.firebase.service.AccelerometerService;
 
 import butterknife.Bind;
@@ -24,7 +24,7 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends BaseActivity {
 
-    public int interval = Constants.DEFAULT_INTERVAL;
+       public int interval = Constants.DEFAULT_INTERVAL;
     public int duration = Constants.DEFAULT_DURATION;
     public String startTime;
     private BroadcastReceiver mReceiver;
@@ -70,12 +70,11 @@ public class MainActivity extends BaseActivity {
 
     private void registerBroadcast() {
         IntentFilter intentFilter = new IntentFilter(
-                "android.intent.action.MAIN");
+                Constants.INTENT_ACTION_MAIN);
 
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.d("mReceiver", "MainActivity onResume");
                 setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
                 isRunning = false;
             }
@@ -96,7 +95,40 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        int itemId=item.getItemId();
+        switch (itemId) {
+            case R.id.interval_1s:
+            case R.id.interval_2s:
+            case R.id.interval_5s:
+            case R.id.interval_10s:
+                setInterval(itemId);
+                break;
+            case R.id.duration_1m:
+            case R.id.duration_2m:
+            case R.id.duration_5m:
+            case R.id.duration_10m:
+                setDuration(itemId);
+                break;
+            case R.id.start_recording_time:
+                TimePickerFragment dialogFragment = new TimePickerFragment();
+                dialogFragment.show(getFragmentManager(), getResources().getString(R.string.choose_time));
+                break;
+            case R.id.clean_db:
+                FirebaseOperations.cleanDb(getUid());
+            case R.id.action_logout:
+                FirebaseOperations.logout();
+                startActivity(new Intent(this, SignInActivity.class));
+                finish();
+                break;
+            default:
+                return false;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void setInterval(int id) {
+        switch (id) {
             case R.id.interval_1s:
                 interval = 1;
                 break;
@@ -109,6 +141,11 @@ public class MainActivity extends BaseActivity {
             case R.id.interval_10s:
                 interval = 10;
                 break;
+        }
+    }
+
+    private void setDuration(int id) {
+        switch (id) {
             case R.id.duration_1m:
                 duration = Constants.MIN_TO_SEC;
                 break;
@@ -121,23 +158,7 @@ public class MainActivity extends BaseActivity {
             case R.id.duration_10m:
                 duration = 10 * Constants.MIN_TO_SEC;
                 break;
-            case R.id.start_recording_time:
-                TimePickerFragment dialogFragment = new TimePickerFragment();
-                dialogFragment.show(getFragmentManager(), getResources().getString(R.string.choose_time));
-                break;
-            case R.id.clean_db:
-                FirebaseDatabase.getInstance().getReference().getRoot().child("users-sessions-coordinates").child(getUid()).removeValue();
-                FirebaseDatabase.getInstance().getReference().getRoot().child("sessions").child(getUid()).removeValue();
-            case R.id.action_logout:
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(this, SignInActivity.class));
-                finish();
-                break;
-            default:
-                return false;
         }
-        Log.d("Options", " interval = " + interval + " duration = " + duration + " start Time = " + startTime);
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

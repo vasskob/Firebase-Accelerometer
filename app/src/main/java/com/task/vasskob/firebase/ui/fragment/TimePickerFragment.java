@@ -1,4 +1,4 @@
-package com.task.vasskob.firebase.fragment;
+package com.task.vasskob.firebase.ui.fragment;
 
 
 import android.app.AlarmManager;
@@ -14,7 +14,7 @@ import android.util.Log;
 import android.widget.TimePicker;
 
 import com.task.vasskob.firebase.Constants;
-import com.task.vasskob.firebase.MainActivity;
+import com.task.vasskob.firebase.ui.MainActivity;
 import com.task.vasskob.firebase.service.AccelerometerService;
 
 import java.util.Calendar;

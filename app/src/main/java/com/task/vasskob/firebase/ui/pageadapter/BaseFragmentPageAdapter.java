@@ -1,4 +1,4 @@
-package com.task.vasskob.firebase.pageadapter;
+package com.task.vasskob.firebase.ui.pageadapter;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
@@ -6,8 +6,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.task.vasskob.firebase.R;
-import com.task.vasskob.firebase.fragment.ChartFragment;
-import com.task.vasskob.firebase.fragment.ResentDataFragment;
+import com.task.vasskob.firebase.ui.fragment.ChartFragment;
+import com.task.vasskob.firebase.ui.fragment.CoordinateListFragment;
 
 abstract class BaseFragmentPageAdapter extends FragmentPagerAdapter {
 
@@ -17,7 +17,7 @@ abstract class BaseFragmentPageAdapter extends FragmentPagerAdapter {
     BaseFragmentPageAdapter(FragmentManager fm, Context context) {
         super(fm);
         mFragments = new Fragment[]{
-                new ResentDataFragment(),
+                new CoordinateListFragment(),
                 new ChartFragment(),
         };
         mFragmentNames = new String[]{

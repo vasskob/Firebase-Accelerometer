@@ -1,4 +1,4 @@
-package com.task.vasskob.firebase.fragment;
+package com.task.vasskob.firebase.ui.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,23 +10,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.model.Coordinates;
-import com.task.vasskob.firebase.viewholder.CoordViewHolder;
+import com.task.vasskob.firebase.ui.viewholder.CoordViewHolder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public abstract class ListFragment extends Fragment {
 
-    //  private static final String TAG = ListFragment.class.getSimpleName();
     @Bind(R.id.recycle_view)
     RecyclerView recyclerView;
 
-    private DatabaseReference mDatabase;
     private FirebaseRecyclerAdapter<Coordinates, CoordViewHolder> mAdapter;
 
     @Override
@@ -34,7 +30,6 @@ public abstract class ListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.list_fragment, parent, false);
         ButterKnife.bind(this, rootView);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
         return rootView;
     }
 
@@ -46,7 +41,7 @@ public abstract class ListFragment extends Fragment {
         recyclerView.setLayoutManager(mManager);
 
         // Set up FirebaseRecyclerAdapter with the Query
-        Query coordinatesQuery = getQuery(mDatabase);
+        Query coordinatesQuery = getQuery();
         mAdapter = new FirebaseRecyclerAdapter<Coordinates, CoordViewHolder>
                 (Coordinates.class, R.layout.coord_list_item, CoordViewHolder.class, coordinatesQuery) {
             @Override
@@ -55,8 +50,6 @@ public abstract class ListFragment extends Fragment {
             }
         };
         recyclerView.setAdapter(mAdapter);
-
-
     }
 
     @Override
@@ -67,6 +60,6 @@ public abstract class ListFragment extends Fragment {
         }
     }
 
-    public abstract Query getQuery(DatabaseReference databaseReference);
+    public abstract Query getQuery();
 
 }
