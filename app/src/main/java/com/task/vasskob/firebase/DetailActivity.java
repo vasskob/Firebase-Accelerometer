@@ -4,12 +4,17 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
+import com.task.vasskob.firebase.fragment.ChartFragment;
+import com.task.vasskob.firebase.model.Coordinates;
+import com.task.vasskob.firebase.pageadapter.BaseFragmentPageAdapter;
 import com.task.vasskob.firebase.pageadapter.LandscapeFragmentPageAdapter;
 import com.task.vasskob.firebase.pageadapter.PortraitFragmentPageAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -24,6 +29,9 @@ public class DetailActivity extends BaseActivity {
     @Bind(R.id.tabs)
     TabLayout tabLayout;
 
+    List<Coordinates> coords = new ArrayList<Coordinates>();
+    private BaseFragmentPageAdapter mPagerAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +39,6 @@ public class DetailActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         int orientation = this.getResources().getConfiguration().orientation;
-        FragmentPagerAdapter mPagerAdapter;
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             mPagerAdapter = new PortraitFragmentPageAdapter(getSupportFragmentManager(), this);
             tabLayout.setVisibility(View.VISIBLE);
@@ -42,9 +49,15 @@ public class DetailActivity extends BaseActivity {
 
         mViewPager.setAdapter(mPagerAdapter);
         tabLayout.setupWithViewPager(mViewPager);
-        Intent intent=getIntent();
-        sessionId=intent.getExtras().getString("sessionId");
+        Intent intent = getIntent();
+        sessionId = intent.getExtras().getString("sessionId");
+        coords.clear();
+    }
 
+    public void addCoordinates(Coordinates coordinates) {
+        coords.add(coordinates);
+        ChartFragment chartFragment = (ChartFragment) mPagerAdapter.getChartFragment();
+        chartFragment.onDrawChart(coords);
     }
 }
 

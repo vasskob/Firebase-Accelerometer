@@ -5,10 +5,6 @@ import com.google.firebase.database.Exclude;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by anonymous on 01.04.17
- */
-
 public class Session {
 
     public String startTime;
@@ -21,7 +17,7 @@ public class Session {
     }
 
     public Session(String id, int interval, int duration, String startTime) {
-       this.id = id;
+        this.id = id;
         this.interval = interval;
         this.duration = duration;
         this.startTime = startTime;
@@ -38,7 +34,6 @@ public class Session {
         result.put("startTime", startTime);
         return result;
     }
-
 
 
 }

@@ -22,9 +22,7 @@ import com.task.vasskob.firebase.model.User;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 
 public class AccelerometerService extends Service implements SensorEventListener {
@@ -108,10 +106,11 @@ public class AccelerometerService extends Service implements SensorEventListener
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User user = dataSnapshot.getValue(User.class);
                         if (user != null) {
-                            sendDataToFirebase(userId, getFormattedCurrentTime(), ex, ey, ez);
+                            sendDataToFirebase(userId, System.currentTimeMillis(), ex, ey, ez);
 
                         }
                     }
+
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
 
@@ -120,7 +119,7 @@ public class AccelerometerService extends Service implements SensorEventListener
         );
     }
 
-    private void sendDataToFirebase(String userKey, String recordTime, int ex, int ey, int ez) {
+    private void sendDataToFirebase(String userKey, long recordTime, int ex, int ey, int ez) {
         long currentTime = System.currentTimeMillis();
         if ((currentTime - lastUpdateTime) > interval * Constants.SEC_TO_MILISEC) {
 

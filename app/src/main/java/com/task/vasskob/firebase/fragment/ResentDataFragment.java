@@ -11,6 +11,6 @@ public class ResentDataFragment extends ListFragment {
     @Override
     public Query getQuery(DatabaseReference databaseReference) {
         return databaseReference.child("users-sessions-coordinates").
-                child(((DetailActivity) getActivity()).getUid()).child(((DetailActivity)getActivity()).sessionId).limitToLast(100);
+                child(((DetailActivity) getActivity()).getUid()).child(((DetailActivity) getActivity()).sessionId).limitToLast(100);
     }
 }

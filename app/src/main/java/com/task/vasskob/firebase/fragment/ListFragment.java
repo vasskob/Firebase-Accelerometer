@@ -13,6 +13,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.task.vasskob.firebase.DetailActivity;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.model.Coordinates;
 import com.task.vasskob.firebase.viewholder.CoordViewHolder;
@@ -51,6 +52,9 @@ public abstract class ListFragment extends Fragment {
                 (Coordinates.class, R.layout.coord_list_item, CoordViewHolder.class, coordinatesQuery) {
             @Override
             protected void populateViewHolder(CoordViewHolder viewHolder, final Coordinates coord, int position) {
+//                if (getActivity() instanceof DetailActivity) { // save coordinates to acrivity
+                ((DetailActivity) getActivity()).addCoordinates(coord);
+//                }
                 viewHolder.bindToCoordinates(coord);
             }
         };

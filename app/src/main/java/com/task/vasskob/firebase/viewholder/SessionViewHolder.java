@@ -9,7 +9,7 @@ import com.task.vasskob.firebase.model.Session;
 
 public class SessionViewHolder extends RecyclerView.ViewHolder {
 
-   public View mView;
+    public View mView;
     private TextView sessionStartTime;
     private TextView sessionDuration;
     private TextView sessionInterval;
@@ -19,7 +19,7 @@ public class SessionViewHolder extends RecyclerView.ViewHolder {
         sessionStartTime = (TextView) itemView.findViewById(R.id.session_start_time);
         sessionDuration = (TextView) itemView.findViewById(R.id.session_duration);
         sessionInterval = (TextView) itemView.findViewById(R.id.session_interval);
-        mView=itemView;
+        mView = itemView;
     }
 
     public void bindToSessions(Session session) {

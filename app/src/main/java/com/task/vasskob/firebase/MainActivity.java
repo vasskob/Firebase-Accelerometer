@@ -39,7 +39,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        SessionListFragment sessionListFragment= new SessionListFragment();
+        SessionListFragment sessionListFragment = new SessionListFragment();
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, sessionListFragment).commit();
 
@@ -134,8 +134,8 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
 
-                    setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
-                    isRunning = false;
+                setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
+                isRunning = false;
 
             }
         };

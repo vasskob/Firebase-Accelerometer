@@ -10,7 +10,7 @@ import java.util.Map;
 public class Coordinates {
 
 
-    public String recordTime;
+    public long recordTime;
     public int coordinateX;
     public int coordinateY;
     public int coordinateZ;
@@ -20,7 +20,7 @@ public class Coordinates {
         // Default constructor required for calls to DataSnapshot.getValue(Coordinates.class)
     }
 
-    public Coordinates(String time, int coordinateX, int coordinateY, int coordinateZ) {
+    public Coordinates(long time, int coordinateX, int coordinateY, int coordinateZ) {
 
         this.recordTime = time;
         this.coordinateX = coordinateX;
@@ -38,5 +38,9 @@ public class Coordinates {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }
 

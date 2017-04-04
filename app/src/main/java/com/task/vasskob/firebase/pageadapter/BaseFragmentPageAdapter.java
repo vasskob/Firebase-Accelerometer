@@ -8,9 +8,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.fragment.ChartFragment;
 import com.task.vasskob.firebase.fragment.ResentDataFragment;
-import com.task.vasskob.firebase.fragment.SessionListFragment;
 
-abstract class BaseFragmentPageAdapter extends FragmentPagerAdapter {
+public abstract class BaseFragmentPageAdapter extends FragmentPagerAdapter {
 
     private final Fragment[] mFragments;
     private final String[] mFragmentNames;
@@ -43,4 +42,7 @@ abstract class BaseFragmentPageAdapter extends FragmentPagerAdapter {
         return mFragmentNames[position];
     }
 
+    public Fragment getChartFragment() {
+        return mFragments[1];
+    }
 }
