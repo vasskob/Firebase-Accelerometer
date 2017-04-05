@@ -3,8 +3,10 @@ package com.task.vasskob.firebase.service;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -34,6 +36,7 @@ import java.util.Locale;
 
 public class AccelerometerService extends Service implements SensorEventListener {
 
+    private static final String BROADCAST_SERVICE_STOP = "stop";
     private String userId;
     private String sessionKey;
     private int interval = Constants.DEFAULT_INTERVAL;
@@ -44,6 +47,17 @@ public class AccelerometerService extends Service implements SensorEventListener
     private SensorManager sensorManager;
     private NotificationManagerCompat notificationManager;
 
+    final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (action.equals(BROADCAST_SERVICE_STOP)) {
+                stopService();
+            }
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -51,6 +65,11 @@ public class AccelerometerService extends Service implements SensorEventListener
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         startTime = System.currentTimeMillis();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BROADCAST_SERVICE_STOP);
+        registerReceiver(broadcastReceiver, intentFilter);
+
     }
 
     @Override
@@ -63,6 +82,7 @@ public class AccelerometerService extends Service implements SensorEventListener
         Bundle extras = intent.getBundleExtra(Constants.OPTIONS_KEY);
         initOptions(extras);
         initSession();
+
         return START_REDELIVER_INTENT;
     }
 
@@ -100,6 +120,10 @@ public class AccelerometerService extends Service implements SensorEventListener
         }
     }
 
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
     private void submitData(final int ex, final int ey, final int ez) {
 
         FirebaseOperations.getInstanceRef().child(Constants.USERS).child(userId).addListenerForSingleValueEvent(
@@ -131,11 +155,15 @@ public class AccelerometerService extends Service implements SensorEventListener
             startNotification(0);
         }
         if ((currentTime - startTime) > duration * Constants.SEC_TO_MILISEC) {
-            stopSelf();
-            notificationManager.cancelAll();
-            Intent i = new Intent(Constants.INTENT_ACTION_MAIN);
-            this.sendBroadcast(i);
+            stopService();
         }
+    }
+
+    private void stopService() {
+        stopSelf();
+        notificationManager.cancelAll();
+        Intent i = new Intent(Constants.INTENT_ACTION_MAIN);
+        this.sendBroadcast(i);
     }
 
     private void startNotification(int id) {
@@ -150,6 +178,9 @@ public class AccelerometerService extends Service implements SensorEventListener
                 .setContentTitle(getResources().getString(R.string.notification_title))
                 .setContentText(getResources().getString(R.string.notification_text))
                 .setContentIntent(pi)
+                .addAction(R.drawable.ic_cancel, "STOP", makePendingIntent(BROADCAST_SERVICE_STOP))
+                .setAutoCancel(false)
+                .setOngoing(true)
                 .build();
         notificationManager =
                 NotificationManagerCompat.from(context);
@@ -158,15 +189,17 @@ public class AccelerometerService extends Service implements SensorEventListener
 
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+    private PendingIntent makePendingIntent(String broadcast) {
+        Intent intent = new Intent(broadcast);
+        return PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
     }
+
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         sensorManager.unregisterListener(this);
+        unregisterReceiver(broadcastReceiver);
     }
 
 
