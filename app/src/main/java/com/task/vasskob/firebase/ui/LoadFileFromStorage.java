@@ -1,11 +1,9 @@
 package com.task.vasskob.firebase.ui;
 
-import android.content.Context;
+import android.content.ClipData;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,8 +13,6 @@ import android.widget.Toast;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.service.MyUploadService;
-
-import java.net.URISyntaxException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -56,6 +52,7 @@ public class LoadFileFromStorage extends BaseActivity {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 
         try {
             startActivityForResult(
@@ -70,31 +67,31 @@ public class LoadFileFromStorage extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Uri uri;
         switch (requestCode) {
             case FILE_SELECT_CODE:
                 if (resultCode == RESULT_OK) {
-                    // Get the Uri of the selected file
-                    Uri uri = data.getData();
-                    Log.d(TAG, "File Uri: " + uri.toString());
-                    // Get the path
-                    String path = null;
-                    try {
-                        path = getPath(this, uri);
-                    } catch (URISyntaxException e) {
-                        e.printStackTrace();
-                        Log.d(TAG, "Catch there is no path ");
-                    }
-                    Log.d(TAG, "File Path: " + path);
-                    // Get the file instance
-                    // File file = new File(path);
-                    // Initiate the upload
 
-                    uploadFromUri(uri);
+                    if (data != null) {
+                        ClipData clipData = data.getClipData();
+                        if (clipData != null) {
+                            for (int i = 0; i < clipData.getItemCount(); i++) {
+                                ClipData.Item item = clipData.getItemAt(i);
+                               uri = item.getUri();
+                                uploadFromUri(uri);
+                            }
+                        }
+                        else {
+                            uri=data.getData();
+                            uploadFromUri(uri);
+                        }
+                    }
                 }
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
+
 
     private void uploadFromUri(Uri uri) {
         startService(new Intent(this, MyUploadService.class)
@@ -102,26 +99,6 @@ public class LoadFileFromStorage extends BaseActivity {
                 .setAction(MyUploadService.ACTION_UPLOAD));
     }
 
-    public static String getPath(Context context, Uri uri) throws URISyntaxException {
-        if ("content".equalsIgnoreCase(uri.getScheme())) {
-            String[] projection = {"_data"};
-            Cursor cursor = null;
-
-            try {
-                cursor = context.getContentResolver().query(uri, projection, null, null, null);
-                int column_index = cursor.getColumnIndexOrThrow("_data");
-                if (cursor.moveToFirst()) {
-                    return cursor.getString(column_index);
-                }
-            } catch (Exception e) {
-                // Eat it
-            }
-        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            return uri.getPath();
-        }
-
-        return null;
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -76,13 +76,13 @@ public class MyUploadService extends MyBaseTaskService {
 
         // [START get_child_ref]
         // Get a reference to store file at photos/<FILENAME>.jpg
-        final StorageReference photoRef = mStorageRef.child("media files")
+        final StorageReference mediaRef = mStorageRef.child("media files")
                 .child(fileUri.getLastPathSegment());
         // [END get_child_ref]
 
         // Upload file to Firebase Storage
-        Log.d(TAG, "uploadFromUri:dst:" + photoRef.getPath());
-        photoRef.putFile(fileUri).
+        Log.d(TAG, "uploadFromUri:dst:" + mediaRef.getPath());
+        mediaRef.putFile(fileUri).
                 addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
