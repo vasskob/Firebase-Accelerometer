@@ -52,6 +52,7 @@ public class SessionListFragment extends Fragment {
         // Set up FirebaseRecyclerAdapter with the Query
         Query sessionsQuery = getQuery();
 
+        // TODO: 05/04/17 create custom adapter to hide implementation of view holder
         mAdapter = new FirebaseRecyclerAdapter<Session, SessionViewHolder>
                 (Session.class, R.layout.session_list_item, SessionViewHolder.class, sessionsQuery) {
             @Override
@@ -61,6 +62,7 @@ public class SessionListFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(getActivity(), DetailActivity.class);
+                        // TODO: 05/04/17 WTF!!! don't do this
                         intent.putExtra("sessionId", session.id);
                         startActivity(intent);
                     }

@@ -16,9 +16,9 @@ import android.view.View;
 import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.database.FirebaseOperations;
+import com.task.vasskob.firebase.service.AccelerometerService;
 import com.task.vasskob.firebase.ui.fragment.SessionListFragment;
 import com.task.vasskob.firebase.ui.fragment.TimePickerFragment;
-import com.task.vasskob.firebase.service.AccelerometerService;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -42,11 +42,13 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        // TODO: 05/04/17 it is bad practice to set fragment in onCreate, need to handle savedInstanceState
         SessionListFragment sessionListFragment = new SessionListFragment();
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, sessionListFragment).commit();
 
 
+        // TODO: 05/04/17 ButterKnife?
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,6 +56,7 @@ public class MainActivity extends BaseActivity {
                 if (!isRunning) {
                     Intent intent = new Intent(MainActivity.this, AccelerometerService.class);
                     Bundle bundle = new Bundle();
+                    // TODO: 05/04/17 better to wrap all arguments in some SessionOptions class
                     bundle.putString(Constants.USER_ID, getUid());
                     bundle.putInt(Constants.INTERVAL_KEY, interval);
                     bundle.putString(Constants.START_TIME_KEY, startTime);
@@ -85,15 +88,8 @@ public class MainActivity extends BaseActivity {
         notificationManager.cancelAll();
     }
 
-    public void setFabColorAndIcon(int fabColor, int fabIcon) {
-        fab.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, fabColor));
-        fab.setImageResource(fabIcon);
-
-    }
-
     private void registerBroadcast() {
-        IntentFilter intentFilter = new IntentFilter(
-                Constants.INTENT_ACTION_MAIN);
+        IntentFilter intentFilter = new IntentFilter(Constants.INTENT_ACTION_MAIN);
 
         mReceiver = new BroadcastReceiver() {
             @Override
@@ -107,6 +103,13 @@ public class MainActivity extends BaseActivity {
         };
         this.registerReceiver(mReceiver, intentFilter);
     }
+
+    public void setFabColorAndIcon(int fabColor, int fabIcon) {
+        // TODO: 05/04/17 change fab selected state, customize from resources
+        fab.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, fabColor));
+        fab.setImageResource(fabIcon);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -166,6 +169,8 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setDuration(int id) {
+        // TODO: 05/04/17 check TimeUnit class
+
         switch (id) {
             case R.id.duration_1m:
                 duration = Constants.MIN_TO_SEC;

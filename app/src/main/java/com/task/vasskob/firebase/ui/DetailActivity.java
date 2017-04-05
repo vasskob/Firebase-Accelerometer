@@ -35,10 +35,10 @@ public class DetailActivity extends BaseActivity {
         int orientation = this.getResources().getConfiguration().orientation;
         FragmentPagerAdapter mPagerAdapter;
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            mPagerAdapter = new PortraitFragmentPageAdapter(getSupportFragmentManager(), this);
+            mPagerAdapter = new PortraitFragmentPageAdapter(getSupportFragmentManager(), DetailActivity.this);
             tabLayout.setVisibility(View.VISIBLE);
         } else {
-            mPagerAdapter = new LandscapeFragmentPageAdapter(getSupportFragmentManager(), this);
+            mPagerAdapter = new LandscapeFragmentPageAdapter(getSupportFragmentManager(), DetailActivity.this);
             tabLayout.setVisibility(View.GONE);
         }
 

@@ -1,9 +1,8 @@
 <resources>
-
     <string name="app_name">Accelerometer &amp; Firebase</string>
     <string name="action_settings">Settings</string>
 
-//SignInActivity
+    //SignInActivity
     <string name="menu_login">Log in</string>
     <string name="menu_logout">Log out</string>
     <string name="login_label">Log In</string>
@@ -16,12 +15,12 @@
     <string name="hint_email">email</string>
     <string name="sign_in">Sign In</string>
 
-//  MainActivity
+    // MainActivity
     <string name="start_time">StartTime</string>
     <string name="session_duration">session_duration</string>
     <string name="session_interval">session_interval</string>
 
-// DetailActivity
+    // DetailActivity
     <string name="fragment_1">Fragment 1</string>
     <string name="fragment_2">Fragment 2</string>
     <string name="interval_1s">1s</string>
@@ -40,7 +39,7 @@
     <string name="clean_db">Clean DB</string>
     <string name="detail_activity">Detail Activity</string>
 
-// notification
+    // notification
     <string name="notification_title">Accelerometer collect your data</string>
     <string name="notification_text">Service is running</string>
 

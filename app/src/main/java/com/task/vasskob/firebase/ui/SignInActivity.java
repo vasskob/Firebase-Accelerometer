@@ -23,6 +23,7 @@ import com.task.vasskob.firebase.model.User;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+// TODO: 05/04/17 add facebook, g+ login
 public class SignInActivity extends BaseActivity implements View.OnClickListener {
 
     private static final String TAG = "SignInActivity";
@@ -52,6 +53,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         mAuth = FirebaseAuth.getInstance();
 
         // Click listeners
+        // TODO: 05/04/17 ButterKnife?
         mSignInButton.setOnClickListener(this);
         mSignUpButton.setOnClickListener(this);
     }
@@ -86,6 +88,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                         if (task.isSuccessful()) {
                             onAuthSuccess(task.getResult().getUser());
                         } else {
+                            // TODO: 05/04/17 remove hardcoded messages
                             Toast.makeText(SignInActivity.this, "Sign In Failed",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -141,6 +144,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
 
     private boolean validateForm() {
         boolean result = true;
+        // TODO: 05/04/17 show errors for validatoin
         if (TextUtils.isEmpty(mEmailField.getText().toString())) {
             mEmailField.setError("Required");
             result = false;
@@ -161,6 +165,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     // [START basic_write]
     private void writeNewUser(String userId, String name, String email) {
         User user = new User(name, email);
+        // TODO: 05/04/17 use FirebaseOperations
         mDatabase.child("users").child(userId).setValue(user);
     }
     // [END basic_write]

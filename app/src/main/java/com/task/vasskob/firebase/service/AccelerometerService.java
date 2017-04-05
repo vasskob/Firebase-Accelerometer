@@ -126,7 +126,7 @@ public class AccelerometerService extends Service implements SensorEventListener
     }
 
     private void submitData(final int ex, final int ey, final int ez) {
-
+        // TODO: 05/04/17 check this why you need listener? 
         FirebaseOperations.getInstanceRef().child(Constants.USERS).child(userId).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
@@ -151,12 +151,22 @@ public class AccelerometerService extends Service implements SensorEventListener
 
             String coordinateKey = FirebaseOperations.getChildKey(Constants.COORDINATES);
             Coordinates coordinates = new Coordinates(recordTime, ex, ey, ez);
+            // TODO: 05/04/17 you don't need coordinateKey, this value depend on internal state of objec
             FirebaseOperations.sendCoordinatesToDb(userKey, sessionKey, coordinateKey, coordinates);
             lastUpdateTime = currentTime;
+            // TODO: 05/04/17 why you need to startNotification each time?
             startNotification(0);
         }
         if ((currentTime - startTime) > duration * Constants.SEC_TO_MILISEC) {
+
             stopService();
+
+            stopSelf();
+            notificationManager.cancelAll();
+            // TODO: 05/04/17 better to write own action, that describe the event or use EventBus
+            Intent i = new Intent(Constants.INTENT_ACTION_MAIN);
+            this.sendBroadcast(i);
+
         }
     }
 
@@ -183,6 +193,7 @@ public class AccelerometerService extends Service implements SensorEventListener
         Resources resources = context.getResources();
         Intent intent = new Intent(context, MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(context, 0, intent, 0);
+        // TODO: 05/04/17 try to add the button to stop accellerometer
         Notification notification = new NotificationCompat.Builder(context)
                 .setTicker(resources.getString(R.string.app_name))
                 .setSmallIcon(R.drawable.ic_notification)
