@@ -22,6 +22,7 @@ import com.task.vasskob.firebase.service.AccelerometerService;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity {
 
@@ -32,6 +33,7 @@ public class MainActivity extends BaseActivity {
 
     @Bind(R.id.fab_run_service)
     public FloatingActionButton fab;
+
     private boolean isRunning = false;
 
     @Override
@@ -43,6 +45,8 @@ public class MainActivity extends BaseActivity {
         SessionListFragment sessionListFragment = new SessionListFragment();
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, sessionListFragment).commit();
+
+
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

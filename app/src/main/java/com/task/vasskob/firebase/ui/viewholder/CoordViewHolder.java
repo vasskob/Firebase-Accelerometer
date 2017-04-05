@@ -15,10 +15,10 @@ import butterknife.ButterKnife;
 
 public class CoordViewHolder extends RecyclerView.ViewHolder {
 
-    @Bind(R.id.data_time)
+    @Bind(R.id.tv_coord_time)
     TextView recordingTime;
 
-    @Bind(R.id.data_value)
+    @Bind(R.id.tv_coord_value)
     TextView accelerometerData;
 
     public CoordViewHolder(View itemView) {
