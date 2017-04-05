@@ -23,6 +23,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
+import com.task.vasskob.firebase.SessionOptions;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.model.Coordinates;
 import com.task.vasskob.firebase.model.Session;
@@ -77,23 +78,24 @@ public class AccelerometerService extends Service implements SensorEventListener
         return null;
     }
 
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Bundle extras = intent.getBundleExtra(Constants.OPTIONS_KEY);
-        initOptions(extras);
+        Bundle extras = intent.getExtras();
+        SessionOptions sessionOptions = extras.getParcelable(Constants.OPTIONS_KEY);
+        initOptions(sessionOptions);
         initSession();
         serviceStarted();
-
         return START_REDELIVER_INTENT;
     }
 
-    private void initOptions(Bundle extras) {
-        if (extras != null) {
-            interval = extras.getInt(Constants.INTERVAL_KEY);
-            duration = extras.getInt(Constants.DURATION_KEY);
-            userId = extras.getString(Constants.USER_ID);
+    private void initOptions(SessionOptions options) {
+        if (options != null) {
+            interval = options.getInterval();
+            duration = options.getDuration();
+            userId = options.getUid();
         } else {
-            Log.d("initOptions ", "bundle is NULL !!!!!!!!! ");
+            Log.d("initOptions ", "options is NOT SELECTED !!!!!!!! ");
         }
     }
 
@@ -154,19 +156,11 @@ public class AccelerometerService extends Service implements SensorEventListener
             // TODO: 05/04/17 you don't need coordinateKey, this value depend on internal state of objec
             FirebaseOperations.sendCoordinatesToDb(userKey, sessionKey, coordinateKey, coordinates);
             lastUpdateTime = currentTime;
-            // TODO: 05/04/17 why you need to startNotification each time?
-            startNotification(0);
+
         }
         if ((currentTime - startTime) > duration * Constants.SEC_TO_MILISEC) {
-
             stopService();
-
-            stopSelf();
-            notificationManager.cancelAll();
             // TODO: 05/04/17 better to write own action, that describe the event or use EventBus
-            Intent i = new Intent(Constants.INTENT_ACTION_MAIN);
-            this.sendBroadcast(i);
-
         }
     }
 
@@ -179,13 +173,13 @@ public class AccelerometerService extends Service implements SensorEventListener
         i.putExtra(Constants.SERVISE_IS_RUN, false);
         this.sendBroadcast(i);
     }
-    private void serviceStarted() {
 
+    private void serviceStarted() {
         Intent i = new Intent(Constants.INTENT_ACTION_MAIN);
         i.putExtra(Constants.SERVISE_IS_RUN, true);
         this.sendBroadcast(i);
+        startNotification(0);
     }
-
 
     private void startNotification(int id) {
 
@@ -193,7 +187,6 @@ public class AccelerometerService extends Service implements SensorEventListener
         Resources resources = context.getResources();
         Intent intent = new Intent(context, MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(context, 0, intent, 0);
-        // TODO: 05/04/17 try to add the button to stop accellerometer
         Notification notification = new NotificationCompat.Builder(context)
                 .setTicker(resources.getString(R.string.app_name))
                 .setSmallIcon(R.drawable.ic_notification)
@@ -216,13 +209,11 @@ public class AccelerometerService extends Service implements SensorEventListener
         return PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
     }
 
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         sensorManager.unregisterListener(this);
         unregisterReceiver(broadcastReceiver);
     }
-
 
 }

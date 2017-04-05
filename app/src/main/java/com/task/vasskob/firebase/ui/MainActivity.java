@@ -6,19 +6,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
+import com.task.vasskob.firebase.SessionOptions;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.service.AccelerometerService;
 import com.task.vasskob.firebase.ui.fragment.SessionListFragment;
 import com.task.vasskob.firebase.ui.fragment.TimePickerFragment;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -34,6 +42,21 @@ public class MainActivity extends BaseActivity {
     @Bind(R.id.fab_run_service)
     public FloatingActionButton fab;
 
+    @OnClick(R.id.fab_run_service)
+    public void onClick() {
+        if (!isRunning) {
+            Intent intent = new Intent(MainActivity.this, AccelerometerService.class);
+            intent.putExtra(Constants.OPTIONS_KEY, new SessionOptions(getUid(), interval, duration));
+            startService(intent);
+            fabIsOn();
+        } else {
+            MainActivity.this.stopService(new Intent(MainActivity.this,
+                    AccelerometerService.class));
+            fabIsOff();
+        }
+
+    }
+
     private boolean isRunning = false;
 
     @Override
@@ -47,41 +70,16 @@ public class MainActivity extends BaseActivity {
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, sessionListFragment).commit();
 
-
-        // TODO: 05/04/17 ButterKnife?
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isRunning) {
-                    Intent intent = new Intent(MainActivity.this, AccelerometerService.class);
-                    Bundle bundle = new Bundle();
-                    // TODO: 05/04/17 better to wrap all arguments in some SessionOptions class
-                    bundle.putString(Constants.USER_ID, getUid());
-                    bundle.putInt(Constants.INTERVAL_KEY, interval);
-                    bundle.putString(Constants.START_TIME_KEY, startTime);
-                    bundle.putInt(Constants.DURATION_KEY, duration);
-                    intent.putExtra(Constants.OPTIONS_KEY, bundle);
-                    startService(intent);
-                    fabIsOn();
-                } else {
-                    MainActivity.this.stopService(new Intent(MainActivity.this,
-                            AccelerometerService.class));
-                    fabIsOff();
-
-                }
-            }
-        });
         registerBroadcast();
     }
 
     private void fabIsOn() {
-        setFabColorAndIcon(R.color.colorRunService, R.drawable.ic_stop);
+        fab.setSelected(true);
         isRunning = true;
     }
 
     private void fabIsOff() {
-        setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
+        fab.setSelected(false);
         isRunning = false;
         NotificationManagerCompat notificationManager =
                 NotificationManagerCompat.from(getApplicationContext());
@@ -90,7 +88,6 @@ public class MainActivity extends BaseActivity {
 
     private void registerBroadcast() {
         IntentFilter intentFilter = new IntentFilter(Constants.INTENT_ACTION_MAIN);
-
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -102,12 +99,6 @@ public class MainActivity extends BaseActivity {
             }
         };
         this.registerReceiver(mReceiver, intentFilter);
-    }
-
-    public void setFabColorAndIcon(int fabColor, int fabIcon) {
-        // TODO: 05/04/17 change fab selected state, customize from resources
-        fab.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, fabColor));
-        fab.setImageResource(fabIcon);
     }
 
 
@@ -147,7 +138,6 @@ public class MainActivity extends BaseActivity {
             default:
                 return false;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -169,20 +159,18 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setDuration(int id) {
-        // TODO: 05/04/17 check TimeUnit class
-
         switch (id) {
             case R.id.duration_1m:
-                duration = Constants.MIN_TO_SEC;
+                duration = (int) TimeUnit.MINUTES.toSeconds(1);
                 break;
             case R.id.duration_2m:
-                duration = 2 * Constants.MIN_TO_SEC;
+                duration = (int) TimeUnit.MINUTES.toSeconds(2);
                 break;
             case R.id.duration_5m:
-                duration = 5 * Constants.MIN_TO_SEC;
+                duration = (int) TimeUnit.MINUTES.toSeconds(5);
                 break;
             case R.id.duration_10m:
-                duration = 10 * Constants.MIN_TO_SEC;
+                duration = (int) TimeUnit.MINUTES.toSeconds(10);
                 break;
         }
     }
@@ -193,4 +181,6 @@ public class MainActivity extends BaseActivity {
         this.unregisterReceiver(this.mReceiver);
         fabIsOff();
     }
+
+
 }
