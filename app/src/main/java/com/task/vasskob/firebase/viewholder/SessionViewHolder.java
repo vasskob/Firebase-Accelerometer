@@ -10,6 +10,8 @@ import com.task.vasskob.firebase.model.Session;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+// TODO: 05/04/17 WTF? this class unused?
+
 public class SessionViewHolder extends RecyclerView.ViewHolder {
 
     public View mView;

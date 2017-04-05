@@ -10,6 +10,7 @@ public class CoordinateListFragment extends ListFragment {
 
     @Override
     public Query getQuery() {
+        // TODO: 05/04/17 send this as arguments, don't cast activity
         String uid = ((DetailActivity) getActivity()).getUid();
         String sid = ((DetailActivity) getActivity()).sessionId;
         return FirebaseOperations.getRefForCoordChild(uid, sid).limitToLast(100);
