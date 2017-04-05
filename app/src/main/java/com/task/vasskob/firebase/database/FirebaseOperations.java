@@ -63,5 +63,11 @@ public class FirebaseOperations {
 
 
     }
+
+    public static StorageReference getStorageRef(String child1, String child2) {
+        return FirebaseStorage.getInstance().getReference().child(child1).child(child2);
+    }
+
+
 }
 

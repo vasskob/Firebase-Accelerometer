@@ -11,11 +11,11 @@ import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.task.vasskob.firebase.R;
+import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.ui.LoadFileFromStorage;
 
 /**
@@ -34,17 +34,10 @@ public class MyUploadService extends MyBaseTaskService {
     public static final String EXTRA_FILE_URI = "extra_file_uri";
     public static final String EXTRA_DOWNLOAD_URL = "extra_download_url";
 
-    // [START declare_ref]
-    private StorageReference mStorageRef;
-    // [END declare_ref]
-
-    @Override
+     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate: MyUploadService is running!!!!!!" );
-        // [START get_storage_ref]
-        mStorageRef = FirebaseStorage.getInstance().getReference();
-        // [END get_storage_ref]
     }
 
     @Nullable
@@ -76,8 +69,7 @@ public class MyUploadService extends MyBaseTaskService {
 
         // [START get_child_ref]
         // Get a reference to store file at photos/<FILENAME>.jpg
-        final StorageReference mediaRef = mStorageRef.child("media files")
-                .child(fileUri.getLastPathSegment());
+        final StorageReference mediaRef = FirebaseOperations.getStorageRef("media files",fileUri.getLastPathSegment());
         // [END get_child_ref]
 
         // Upload file to Firebase Storage
