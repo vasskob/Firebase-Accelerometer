@@ -82,6 +82,7 @@ public class AccelerometerService extends Service implements SensorEventListener
         Bundle extras = intent.getBundleExtra(Constants.OPTIONS_KEY);
         initOptions(extras);
         initSession();
+        serviceStarted();
 
         return START_REDELIVER_INTENT;
     }
@@ -161,10 +162,20 @@ public class AccelerometerService extends Service implements SensorEventListener
 
     private void stopService() {
         stopSelf();
+        notificationManager =
+                NotificationManagerCompat.from(getApplicationContext());
         notificationManager.cancelAll();
         Intent i = new Intent(Constants.INTENT_ACTION_MAIN);
+        i.putExtra(Constants.SERVISE_IS_RUN, false);
         this.sendBroadcast(i);
     }
+    private void serviceStarted() {
+
+        Intent i = new Intent(Constants.INTENT_ACTION_MAIN);
+        i.putExtra(Constants.SERVISE_IS_RUN, true);
+        this.sendBroadcast(i);
+    }
+
 
     private void startNotification(int id) {
 

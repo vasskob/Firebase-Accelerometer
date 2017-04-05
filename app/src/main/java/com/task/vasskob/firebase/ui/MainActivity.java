@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,7 +25,7 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends BaseActivity {
 
-       public int interval = Constants.DEFAULT_INTERVAL;
+    public int interval = Constants.DEFAULT_INTERVAL;
     public int duration = Constants.DEFAULT_DURATION;
     public String startTime;
     private BroadcastReceiver mReceiver;
@@ -55,17 +56,35 @@ public class MainActivity extends BaseActivity {
                     bundle.putInt(Constants.DURATION_KEY, duration);
                     intent.putExtra(Constants.OPTIONS_KEY, bundle);
                     startService(intent);
-                    setFabColorAndIcon(R.color.colorRunService, R.drawable.ic_stop);
-                    isRunning = true;
+                    fabIsOn();
                 } else {
                     MainActivity.this.stopService(new Intent(MainActivity.this,
                             AccelerometerService.class));
-                    setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
-                    isRunning = false;
+                    fabIsOff();
+
                 }
             }
         });
         registerBroadcast();
+    }
+
+    private void fabIsOn() {
+        setFabColorAndIcon(R.color.colorRunService, R.drawable.ic_stop);
+        isRunning = true;
+    }
+
+    private void fabIsOff() {
+        setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
+        isRunning = false;
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(getApplicationContext());
+        notificationManager.cancelAll();
+    }
+
+    public void setFabColorAndIcon(int fabColor, int fabIcon) {
+        fab.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, fabColor));
+        fab.setImageResource(fabIcon);
+
     }
 
     private void registerBroadcast() {
@@ -75,16 +94,14 @@ public class MainActivity extends BaseActivity {
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                setFabColorAndIcon(R.color.colorAccent, R.drawable.ic_play);
-                isRunning = false;
+                if (intent.getExtras().getBoolean(Constants.SERVISE_IS_RUN)) {
+                    fabIsOn();
+                } else {
+                    fabIsOff();
+                }
             }
         };
         this.registerReceiver(mReceiver, intentFilter);
-    }
-
-    public void setFabColorAndIcon(int fabColor, int fabIcon) {
-        fab.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, fabColor));
-        fab.setImageResource(fabIcon);
     }
 
     @Override
@@ -95,7 +112,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId=item.getItemId();
+        int itemId = item.getItemId();
         switch (itemId) {
             case R.id.interval_1s:
             case R.id.interval_2s:
@@ -165,5 +182,6 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         this.unregisterReceiver(this.mReceiver);
+        fabIsOff();
     }
 }
