@@ -82,16 +82,6 @@
         android:orientation="vertical">
 
         <ImageButton
-            android:id="@+id/facebook_sign_out"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="20dp"
-            android:padding="0dp"
-            android:src="@drawable/ic_facebook"
-            android:text="@string/sign_in"/>
-
-        <com.facebook.login.widget.LoginButton
             android:id="@+id/facebook_sign_in"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

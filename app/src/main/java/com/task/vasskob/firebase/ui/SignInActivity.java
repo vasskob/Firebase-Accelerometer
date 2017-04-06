@@ -14,7 +14,6 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -34,13 +33,15 @@ import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.model.User;
 
+import java.util.Arrays;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 // TODO: 05/04/17 add facebook, g+ login
 public class SignInActivity extends BaseActivity implements
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult> {
 
     private static final String TAG = "SignInActivity";
     public static final String SIGN_IN_FAILED = "Sign In Failed";
@@ -60,6 +61,7 @@ public class SignInActivity extends BaseActivity implements
     private GoogleApiClient mGoogleApiClient;
 
     private CallbackManager mCallbackManager;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
 
     @OnClick(R.id.button_sign_in)
@@ -77,12 +79,10 @@ public class SignInActivity extends BaseActivity implements
         signInGPlus();
     }
 
-    @Bind(R.id.facebook_sign_in)
-    LoginButton loginButton;
 
-    @OnClick(R.id.facebook_sign_out)
-    public void onFSignOutClick() {
-        LoginManager.getInstance().logOut();
+    @OnClick(R.id.facebook_sign_in)
+    public void onFSignInClick() {
+        singInFacebook();
     }
 
 
@@ -103,8 +103,17 @@ public class SignInActivity extends BaseActivity implements
     public void onStart() {
         super.onStart();
         // Check auth on Activity start
-        if (mAuth.getCurrentUser() != null) {
-            onAuthSuccess(mAuth.getCurrentUser());
+//        if (mAuth.getCurrentUser() != null) {
+//            onAuthSuccess(mAuth.getCurrentUser());
+//        }
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
         }
     }
 
@@ -211,6 +220,21 @@ public class SignInActivity extends BaseActivity implements
     // G+ Authentication Section
 
     private void initGPlusSignIn() {
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+            }
+        };
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -242,8 +266,7 @@ public class SignInActivity extends BaseActivity implements
                 // Google Sign In failed, update UI appropriately
                 Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
             }
-        }
-        else {
+        } else {
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -285,28 +308,28 @@ public class SignInActivity extends BaseActivity implements
     // Facebook LogIn Section
     private void initFacebookSignIn() {
 
-        // Initialize Facebook Login button
         mCallbackManager = CallbackManager.Factory.create();
-        loginButton.setReadPermissions("email", "public_profile");
-        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                handleFacebookAccessToken(loginResult.getAccessToken());
-            }
+        LoginManager.getInstance().registerCallback(mCallbackManager, this);
 
-            @Override
-            public void onCancel() {
-                Log.d(TAG, "facebook:onCancel");
-                // ...
-            }
+    }
 
-            @Override
-            public void onError(FacebookException error) {
-                Log.d(TAG, "facebook:onError", error);
-                // ...
-            }
-        });
+    private void singInFacebook() {
+        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile"));
+    }
+
+    @Override
+    public void onSuccess(LoginResult loginResult) {
+        Log.d(TAG, "onSuccess:" + loginResult.getAccessToken());
+        handleFacebookAccessToken(loginResult.getAccessToken());
+    }
+
+    @Override
+    public void onCancel() {
+
+    }
+
+    @Override
+    public void onError(FacebookException e) {
     }
 
     private void handleFacebookAccessToken(AccessToken token) {
@@ -329,8 +352,7 @@ public class SignInActivity extends BaseActivity implements
                             Log.w(TAG, "signInWithCredential", task.getException());
                             Toast.makeText(SignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                        }
-                        else {
+                        } else {
 
                             startActivity(new Intent(SignInActivity.this, MainActivity.class));
                             finish();
@@ -342,6 +364,5 @@ public class SignInActivity extends BaseActivity implements
                     }
                 });
     }
-
 
 }
