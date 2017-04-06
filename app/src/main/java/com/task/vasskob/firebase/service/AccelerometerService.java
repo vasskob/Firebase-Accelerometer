@@ -18,16 +18,12 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.SessionOptions;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.model.Coordinates;
 import com.task.vasskob.firebase.model.Session;
-import com.task.vasskob.firebase.model.User;
 import com.task.vasskob.firebase.ui.MainActivity;
 
 import java.text.SimpleDateFormat;
@@ -81,8 +77,8 @@ public class AccelerometerService extends Service implements SensorEventListener
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Bundle extras = intent.getExtras();
-        SessionOptions sessionOptions = extras.getParcelable(Constants.OPTIONS_KEY);
+        Bundle b = intent.getBundleExtra(Constants.OPTIONS_KEY);
+        SessionOptions sessionOptions = b.getParcelable(Constants.OPTIONS_KEY);
         initOptions(sessionOptions);
         initSession();
         serviceStarted();
@@ -118,7 +114,7 @@ public class AccelerometerService extends Service implements SensorEventListener
             int ey = (int) Math.floor(event.values[1]);
             int ez = (int) Math.floor(event.values[2]);
             if (userId != null) {
-                submitData(ex, ey, ez);
+                sendDataToFirebase(userId, System.currentTimeMillis(), ex, ey, ez);
             }
         }
     }
@@ -127,25 +123,6 @@ public class AccelerometerService extends Service implements SensorEventListener
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
-    private void submitData(final int ex, final int ey, final int ez) {
-        // TODO: 05/04/17 check this why you need listener? 
-        FirebaseOperations.getInstanceRef().child(Constants.USERS).child(userId).addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        User user = dataSnapshot.getValue(User.class);
-                        if (user != null) {
-                            sendDataToFirebase(userId, System.currentTimeMillis(), ex, ey, ez);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.d(" submitData", " onCancelled error " + databaseError);
-                    }
-                }
-        );
-    }
 
     private void sendDataToFirebase(String userKey, long recordTime, int ex, int ey, int ez) {
         long currentTime = System.currentTimeMillis();
@@ -197,8 +174,7 @@ public class AccelerometerService extends Service implements SensorEventListener
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .build();
-        notificationManager =
-                NotificationManagerCompat.from(context);
+        notificationManager = NotificationManagerCompat.from(context);
         notificationManager.notify(id, notification);
         Log.i("myLog", "NotificationAboutLoading");
 

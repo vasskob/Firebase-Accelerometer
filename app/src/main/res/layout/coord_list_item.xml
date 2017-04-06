@@ -4,7 +4,6 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp">
 
-    <!--todo check codestyle for view id-->
     <TextView
         android:id="@+id/tv_coord_time"
         android:layout_width="wrap_content"

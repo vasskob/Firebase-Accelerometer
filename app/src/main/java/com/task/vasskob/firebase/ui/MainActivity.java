@@ -6,15 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
@@ -24,8 +19,6 @@ import com.task.vasskob.firebase.service.AccelerometerService;
 import com.task.vasskob.firebase.ui.fragment.SessionListFragment;
 import com.task.vasskob.firebase.ui.fragment.TimePickerFragment;
 
-import java.io.Serializable;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
@@ -36,7 +29,6 @@ public class MainActivity extends BaseActivity {
 
     public int interval = Constants.DEFAULT_INTERVAL;
     public int duration = Constants.DEFAULT_DURATION;
-    public String startTime;
     private BroadcastReceiver mReceiver;
 
     @Bind(R.id.fab_run_service)
@@ -46,7 +38,9 @@ public class MainActivity extends BaseActivity {
     public void onClick() {
         if (!isRunning) {
             Intent intent = new Intent(MainActivity.this, AccelerometerService.class);
-            intent.putExtra(Constants.OPTIONS_KEY, new SessionOptions(getUid(), interval, duration));
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(Constants.OPTIONS_KEY, new SessionOptions(getUid(), interval, duration));
+            intent.putExtra(Constants.OPTIONS_KEY, bundle);
             startService(intent);
             fabIsOn();
         } else {
@@ -125,7 +119,7 @@ public class MainActivity extends BaseActivity {
                 setDuration(itemId);
                 break;
             case R.id.start_recording_time:
-                TimePickerFragment dialogFragment = new TimePickerFragment();
+                TimePickerFragment dialogFragment = TimePickerFragment.newInstance(getUid(), interval, duration);
                 dialogFragment.show(getFragmentManager(), getResources().getString(R.string.choose_time));
                 break;
             case R.id.clean_db:

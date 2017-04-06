@@ -10,17 +10,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.widget.TimePicker;
 
 import com.task.vasskob.firebase.Constants;
-import com.task.vasskob.firebase.ui.MainActivity;
+import com.task.vasskob.firebase.SessionOptions;
 import com.task.vasskob.firebase.service.AccelerometerService;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+
+
+    private static String uId;
+    private static int interval;
+    private static int duration;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -34,13 +38,21 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
                 DateFormat.is24HourFormat(getActivity()));
     }
 
+    public static TimePickerFragment newInstance(String uIdOption, int intervalOption, int durationOption) {
+        TimePickerFragment f = new TimePickerFragment();
+        uId = uIdOption;
+        interval = intervalOption;
+        duration = durationOption;
+        return f;
+    }
+
     //onTimeSet() callback method
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        ((MainActivity) getActivity()).startTime = hourOfDay + ":" + minute;
         runServiceOnTime(hourOfDay, minute);
     }
 
     private void runServiceOnTime(int hourOfDay, int minute) {
+
         Calendar cur_cal = new GregorianCalendar();
         cur_cal.setTimeInMillis(System.currentTimeMillis());
 
@@ -49,22 +61,20 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
         long delayInMinutes;
 
         if (currentMinutes <= selectMinutes) {
-            delayInMinutes = selectMinutes - currentMinutes ;
+            delayInMinutes = selectMinutes - currentMinutes;
 
         } else {
             delayInMinutes = selectMinutes + Constants.DAY_TO_MINUTES - currentMinutes;
         }
 
         Intent intent = new Intent(getActivity(), AccelerometerService.class);
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.USER_ID, ((MainActivity) getActivity()).getUid());
-        bundle.putInt(Constants.INTERVAL_KEY, ((MainActivity) getActivity()).interval);
-        bundle.putInt(Constants.DURATION_KEY, ((MainActivity) getActivity()).duration);
-        intent.putExtra(Constants.OPTIONS_KEY, bundle);
+        Bundle b = new Bundle();
+        b.putParcelable(Constants.OPTIONS_KEY, new SessionOptions(uId, interval, duration));
+        intent.putExtra(Constants.OPTIONS_KEY, b);
+
         PendingIntent pendingIntent = PendingIntent.getService(getActivity(), 0, intent, 0);
         AlarmManager alarm = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
         alarm.set(AlarmManager.RTC, System.currentTimeMillis() + delayInMinutes * Constants.MIN_TO_SEC * Constants.SEC_TO_MILISEC, pendingIntent);
 
-        Log.d("runServiceOnTime", " DELAY = " + delayInMinutes + "min !!!!!!! selectMinutes = " + selectMinutes + " currentMin = " + currentMinutes);
     }
 }
