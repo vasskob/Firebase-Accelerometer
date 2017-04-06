@@ -147,13 +147,13 @@ public class AccelerometerService extends Service implements SensorEventListener
                 NotificationManagerCompat.from(getApplicationContext());
         notificationManager.cancelAll();
         Intent i = new Intent(Constants.INTENT_ACTION_MAIN);
-        i.putExtra(Constants.SERVISE_IS_RUN, false);
+        i.putExtra(Constants.SERVICE_IS_RUN, false);
         this.sendBroadcast(i);
     }
 
     private void serviceStarted() {
         Intent i = new Intent(Constants.INTENT_ACTION_MAIN);
-        i.putExtra(Constants.SERVISE_IS_RUN, true);
+        i.putExtra(Constants.SERVICE_IS_RUN, true);
         this.sendBroadcast(i);
         startNotification(0);
     }

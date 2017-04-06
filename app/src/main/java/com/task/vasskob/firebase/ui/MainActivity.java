@@ -85,7 +85,7 @@ public class MainActivity extends BaseActivity {
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getExtras().getBoolean(Constants.SERVISE_IS_RUN)) {
+                if (intent.getExtras().getBoolean(Constants.SERVICE_IS_RUN)) {
                     fabIsOn();
                 } else {
                     fabIsOff();

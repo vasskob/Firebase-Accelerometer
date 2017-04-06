@@ -5,30 +5,50 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
+import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.model.User;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 // TODO: 05/04/17 add facebook, g+ login
-public class SignInActivity extends BaseActivity implements View.OnClickListener {
+public class SignInActivity extends BaseActivity implements
+        GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "SignInActivity";
+    public static final String SIGN_IN_FAILED = "Sign In Failed";
+    public static final String SIGN_UP_FAILED = "Sign Up Failed. Check email validity";
+    public static final String EMAIL_WARN = "Pass valid email";
+    public static final String PASSWORD_LENGTH_WARN = "Password must be at least 6 characters long";
+    private static final int RC_SIGN_IN = 1;
 
-    private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
 
     @Bind(R.id.field_email)
@@ -37,11 +57,34 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     @Bind(R.id.field_password)
     EditText mPasswordField;
 
-    @Bind(R.id.button_sign_in)
-    Button mSignInButton;
+    private GoogleApiClient mGoogleApiClient;
 
-    @Bind(R.id.button_sign_up)
-    Button mSignUpButton;
+    private CallbackManager mCallbackManager;
+
+
+    @OnClick(R.id.button_sign_in)
+    public void onEmailSignInClick() {
+        signInEmail();
+    }
+
+    @OnClick(R.id.button_sign_up)
+    public void onEmailSignUpClick() {
+        signUpEmail();
+    }
+
+    @OnClick(R.id.g_plus_sign_in)
+    public void onGSignInClick() {
+        signInGPlus();
+    }
+
+    @Bind(R.id.facebook_sign_in)
+    LoginButton loginButton;
+
+    @OnClick(R.id.facebook_sign_out)
+    public void onFSignOutClick() {
+        LoginManager.getInstance().logOut();
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,26 +92,23 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         setContentView(R.layout.activity_sign_in);
         ButterKnife.bind(this);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseOperations.signInRef();
 
-        // Click listeners
-        // TODO: 05/04/17 ButterKnife?
-        mSignInButton.setOnClickListener(this);
-        mSignUpButton.setOnClickListener(this);
+        initGPlusSignIn();
+        initFacebookSignIn();
     }
+
 
     @Override
     public void onStart() {
         super.onStart();
-
         // Check auth on Activity start
         if (mAuth.getCurrentUser() != null) {
             onAuthSuccess(mAuth.getCurrentUser());
         }
     }
 
-    private void signIn() {
+    private void signInEmail() {
         Log.d(TAG, "signIn");
         if (!validateForm()) {
             return;
@@ -88,16 +128,16 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                         if (task.isSuccessful()) {
                             onAuthSuccess(task.getResult().getUser());
                         } else {
-                            // TODO: 05/04/17 remove hardcoded messages
-                            Toast.makeText(SignInActivity.this, "Sign In Failed",
+
+                            Toast.makeText(SignInActivity.this, SIGN_IN_FAILED,
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
 
-    private void signUp() {
-        Log.d(TAG, "signUp");
+    private void signUpEmail() {
+        Log.d(TAG, "signUpEmail");
         if (!validateForm()) {
             return;
         }
@@ -116,7 +156,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                         if (task.isSuccessful()) {
                             onAuthSuccess(task.getResult().getUser());
                         } else {
-                            Toast.makeText(SignInActivity.this, "Sign Up Failed",
+                            Toast.makeText(SignInActivity.this, SIGN_UP_FAILED,
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -125,9 +165,10 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
 
     private void onAuthSuccess(FirebaseUser user) {
         String username = usernameFromEmail(user.getEmail());
+        User newUser = new User(username, user.getEmail());
 
         // Write new user
-        writeNewUser(user.getUid(), username, user.getEmail());
+        FirebaseOperations.CreateNewUser(Constants.USERS, user.getUid(), newUser);
 
         // Go to MainActivity
         startActivity(new Intent(SignInActivity.this, MainActivity.class));
@@ -144,16 +185,16 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
 
     private boolean validateForm() {
         boolean result = true;
-        // TODO: 05/04/17 show errors for validatoin
-        if (TextUtils.isEmpty(mEmailField.getText().toString())) {
-            mEmailField.setError("Required");
+        String email = mEmailField.getText().toString();
+        if (!isValidEmail(email)) {
+            mEmailField.setError(EMAIL_WARN);
             result = false;
         } else {
             mEmailField.setError(null);
         }
 
-        if (TextUtils.isEmpty(mPasswordField.getText().toString())) {
-            mPasswordField.setError("Required");
+        if (mPasswordField.getText().length() < 6) {
+            mPasswordField.setError(PASSWORD_LENGTH_WARN);
             result = false;
         } else {
             mPasswordField.setError(null);
@@ -162,21 +203,145 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         return result;
     }
 
-    // [START basic_write]
-    private void writeNewUser(String userId, String name, String email) {
-        User user = new User(name, email);
-        // TODO: 05/04/17 use FirebaseOperations
-        mDatabase.child("users").child(userId).setValue(user);
+    public static boolean isValidEmail(CharSequence target) {
+        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
-    // [END basic_write]
+
+
+    // G+ Authentication Section
+
+    private void initGPlusSignIn() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+    }
+
+    private void signInGPlus() {
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
 
     @Override
-    public void onClick(View v) {
-        int i = v.getId();
-        if (i == R.id.button_sign_in) {
-            signIn();
-        } else if (i == R.id.button_sign_up) {
-            signUp();
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            if (result.isSuccess()) {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = result.getSignInAccount();
+                firebaseAuthWithGoogle(account);
+            } else {
+                // Google Sign In failed, update UI appropriately
+                Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else {
+            mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
+
+    // [START auth_with_google]
+    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+        showProgressDialog();
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "signInWithCredential", task.getException());
+                            Toast.makeText(SignInActivity.this, "GPlus authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+
+                            startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                            finish();
+                        }
+                        hideProgressDialog();
+                    }
+                });
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed:" + connectionResult);
+        Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
+    }
+
+    // Facebook LogIn Section
+    private void initFacebookSignIn() {
+
+        // Initialize Facebook Login button
+        mCallbackManager = CallbackManager.Factory.create();
+        loginButton.setReadPermissions("email", "public_profile");
+        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(TAG, "facebook:onSuccess:" + loginResult);
+                handleFacebookAccessToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+                Log.d(TAG, "facebook:onCancel");
+                // ...
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Log.d(TAG, "facebook:onError", error);
+                // ...
+            }
+        });
+    }
+
+    private void handleFacebookAccessToken(AccessToken token) {
+        Log.d(TAG, "handleFacebookAccessToken:" + token);
+        // [START_EXCLUDE silent]
+        showProgressDialog();
+        // [END_EXCLUDE]
+
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
+
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "signInWithCredential", task.getException());
+                            Toast.makeText(SignInActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+
+                            startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                            finish();
+                        }
+
+                        // [START_EXCLUDE]
+                        hideProgressDialog();
+                        // [END_EXCLUDE]
+                    }
+                });
+    }
+
+
 }

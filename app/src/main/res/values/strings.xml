@@ -43,4 +43,7 @@
     <string name="notification_title">Accelerometer collect your data</string>
     <string name="notification_text">Service is running</string>
 
+    <string name="facebook_app_id">778707985618153</string>
+
+
 </resources>

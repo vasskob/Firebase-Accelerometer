@@ -6,6 +6,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.model.Coordinates;
 import com.task.vasskob.firebase.model.Session;
+import com.task.vasskob.firebase.model.User;
 
 public class FirebaseOperations {
 
@@ -20,6 +21,10 @@ public class FirebaseOperations {
 
     public static void logout() {
         FirebaseAuth.getInstance().signOut();
+    }
+
+    public static FirebaseAuth signInRef() {
+       return FirebaseAuth.getInstance();
     }
 
     public static String getChildKey(String child) {
@@ -46,5 +51,8 @@ public class FirebaseOperations {
         getRefForSesChild(child2).child(child3).setValue(session.toMap());
     }
 
+    public static void CreateNewUser(String tableName, String userId, User user) {
+        getInstanceRef().child(tableName).child(userId).setValue(user);
+    }
 }
 
