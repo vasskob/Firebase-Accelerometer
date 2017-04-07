@@ -21,29 +21,27 @@ public class SessionListAdapter extends FirebaseRecyclerAdapter<Session, Session
 
     private Context context;
 
-
-    public SessionListAdapter(Class<Session> modelClass, int modelLayout, Class<SessionViewHolder> viewHolderClass, Query ref) {
-        super(modelClass, modelLayout, viewHolderClass, ref);
+    public SessionListAdapter(Query ref, Context context) {
+        super(Session.class, R.layout.session_list_item, SessionViewHolder.class, ref);
+        this.context = context;
     }
 
 
     @Override
     protected void populateViewHolder(SessionViewHolder viewHolder, final Session session, int position) {
         viewHolder.bindToSessions(session);
-            viewHolder.mView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(context, DetailActivity.class);
-                    intent.putExtra(Constants.SESSION_ID, session.id);
-                    context.startActivity(intent);
-                }
-            });
-
-
+        viewHolder.mView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, DetailActivity.class);
+                intent.putExtra(Constants.SESSION_ID, session.id);
+                context.startActivity(intent);
+            }
+        });
     }
 
 
-    class SessionViewHolder extends RecyclerView.ViewHolder {
+    static class SessionViewHolder extends RecyclerView.ViewHolder {
 
         View mView;
         @Bind(R.id.session_start_time)

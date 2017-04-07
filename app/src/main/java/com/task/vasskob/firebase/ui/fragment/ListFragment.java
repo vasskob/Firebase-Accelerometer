@@ -1,8 +1,10 @@
 package com.task.vasskob.firebase.ui.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,8 +14,6 @@ import android.view.ViewGroup;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.Query;
 import com.task.vasskob.firebase.R;
-import com.task.vasskob.firebase.model.Coordinates;
-import com.task.vasskob.firebase.ui.viewholder.CoordViewHolder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -23,7 +23,7 @@ public abstract class ListFragment extends Fragment {
     @Bind(R.id.recycle_view)
     RecyclerView recyclerView;
 
-    private FirebaseRecyclerAdapter<Coordinates, CoordViewHolder> mAdapter;
+    private FirebaseRecyclerAdapter mAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -39,16 +39,13 @@ public abstract class ListFragment extends Fragment {
 
         LinearLayoutManager mManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                mManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
 
         // Set up FirebaseRecyclerAdapter with the Query
-        Query coordinatesQuery = getQuery();
-        mAdapter = new FirebaseRecyclerAdapter<Coordinates, CoordViewHolder>
-                (Coordinates.class, R.layout.coord_list_item, CoordViewHolder.class, coordinatesQuery) {
-            @Override
-            protected void populateViewHolder(CoordViewHolder viewHolder, final Coordinates coord, int position) {
-                viewHolder.bindToCoordinates(coord);
-            }
-        };
+
+        mAdapter = getAdapter(getQuery(), getActivity());
         recyclerView.setAdapter(mAdapter);
     }
 
@@ -60,6 +57,9 @@ public abstract class ListFragment extends Fragment {
         }
     }
 
+    public abstract FirebaseRecyclerAdapter getAdapter(Query query, Context context);
+
     public abstract Query getQuery();
+
 
 }

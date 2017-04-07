@@ -127,12 +127,9 @@ public class AccelerometerService extends Service implements SensorEventListener
         long currentTime = System.currentTimeMillis();
         if ((currentTime - lastUpdateTime) > interval * Constants.SEC_TO_MILISEC) {
 
-            String coordinateKey = FirebaseOperations.getChildKey(Constants.COORDINATES);
             Coordinates coordinates = new Coordinates(recordTime, ex, ey, ez);
-            // TODO: 05/04/17 you don't need coordinateKey, this value depend on internal state of object
-            FirebaseOperations.sendCoordinatesToDb(userKey, sessionKey, coordinateKey, coordinates);
+            FirebaseOperations.sendCoordinatesToDb(userKey, sessionKey, coordinates);
             lastUpdateTime = currentTime;
-
         }
         if ((currentTime - startTime) > duration * Constants.SEC_TO_MILISEC) {
             stopService();

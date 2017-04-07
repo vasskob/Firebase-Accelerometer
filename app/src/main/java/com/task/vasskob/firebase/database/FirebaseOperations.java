@@ -10,8 +10,6 @@ import com.task.vasskob.firebase.model.User;
 
 public class FirebaseOperations {
 
-    String coordinateKey = FirebaseOperations.getChildKey(Constants.COORDINATES);
-
     public static DatabaseReference getInstanceRef() {
         return FirebaseDatabase.getInstance().getReference();
     }
@@ -30,8 +28,8 @@ public class FirebaseOperations {
        return FirebaseAuth.getInstance();
     }
 
-    public static String getChildKey(String child) {
-        return getInstanceRef().child(child).push().getKey();
+    public static String getChildKey(String childId) {
+        return getInstanceRef().child(childId).push().getKey();
     }
 
     public static DatabaseReference getRefForCoordChild(String userId, String sessionId) {
@@ -49,8 +47,10 @@ public class FirebaseOperations {
     public static DatabaseReference getRefForUsersChild(String userId) {
         return getInstanceRef().child(Constants.USERS).child(userId);
     }
-    public static void sendCoordinatesToDb(String userId, String sessionId, String coordId, Coordinates coordinates) {
-        getRefForCoordChild(userId, sessionId).child(coordId).setValue(coordinates.toMap());
+    public static void sendCoordinatesToDb(String userId, String sessionId,  Coordinates coordinates) {
+        String coordinateKey = FirebaseOperations.getChildKey(Constants.COORDINATES);
+        getRefForCoordChild(userId, sessionId).child(coordinateKey).setValue(coordinates.toMap());
+
     }
 
     public static void sendSessionToDb(String userId, String sessionId, Session session) {
