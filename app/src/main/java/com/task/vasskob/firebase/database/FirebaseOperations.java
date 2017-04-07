@@ -10,6 +10,8 @@ import com.task.vasskob.firebase.model.User;
 
 public class FirebaseOperations {
 
+    String coordinateKey = FirebaseOperations.getChildKey(Constants.COORDINATES);
+
     public static DatabaseReference getInstanceRef() {
         return FirebaseDatabase.getInstance().getReference();
     }
@@ -17,6 +19,7 @@ public class FirebaseOperations {
     public static void cleanDb(String uid) {
         getRefForCoordChild(uid).removeValue();
         getRefForSesChild(uid).removeValue();
+        getRefForUsersChild(uid).removeValue();
     }
 
     public static void logout() {
@@ -31,24 +34,27 @@ public class FirebaseOperations {
         return getInstanceRef().child(child).push().getKey();
     }
 
-    private static DatabaseReference getRefForCoordChild(String child2) {
-        return getInstanceRef().child(Constants.USERS_SESSIONS_COORDINATES).child(child2);
+    public static DatabaseReference getRefForCoordChild(String userId, String sessionId) {
+        return getRefForCoordChild(userId).child(sessionId);
     }
 
-    public static DatabaseReference getRefForCoordChild(String child2, String child3) {
-        return getRefForCoordChild(child2).child(child3);
+    private static DatabaseReference getRefForCoordChild(String userId) {
+        return getInstanceRef().child(Constants.USERS_SESSIONS_COORDINATES).child(userId);
     }
 
-    public static DatabaseReference getRefForSesChild(String child2) {
-        return getInstanceRef().child(Constants.SESSIONS).child(child2);
+    public static DatabaseReference getRefForSesChild(String userId) {
+        return getInstanceRef().child(Constants.SESSIONS).child(userId);
     }
 
-    public static void sendCoordinatesToDb(String child2, String child3, String child4, Coordinates coordinates) {
-        getRefForCoordChild(child2, child3).child(child4).setValue(coordinates.toMap());
+    public static DatabaseReference getRefForUsersChild(String userId) {
+        return getInstanceRef().child(Constants.USERS).child(userId);
+    }
+    public static void sendCoordinatesToDb(String userId, String sessionId, String coordId, Coordinates coordinates) {
+        getRefForCoordChild(userId, sessionId).child(coordId).setValue(coordinates.toMap());
     }
 
-    public static void sendSessionToDb(String child2, String child3, Session session) {
-        getRefForSesChild(child2).child(child3).setValue(session.toMap());
+    public static void sendSessionToDb(String userId, String sessionId, Session session) {
+        getRefForSesChild(userId).child(sessionId).setValue(session.toMap());
     }
 
     public static void CreateNewUser(String tableName, String userId, User user) {

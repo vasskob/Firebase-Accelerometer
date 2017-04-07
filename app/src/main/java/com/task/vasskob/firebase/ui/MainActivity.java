@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NotificationManagerCompat;
 import android.view.Menu;
@@ -33,6 +34,7 @@ public class MainActivity extends BaseActivity {
 
     @Bind(R.id.fab_run_service)
     public FloatingActionButton fab;
+    private SessionListFragment sessionListFragment;
 
     @OnClick(R.id.fab_run_service)
     public void onClick() {
@@ -59,12 +61,23 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        // TODO: 05/04/17 it is bad practice to set fragment in onCreate, need to handle savedInstanceState
-        SessionListFragment sessionListFragment = new SessionListFragment();
+
+        if (savedInstanceState != null) {
+            sessionListFragment = (SessionListFragment) getSupportFragmentManager().
+                    getFragment(savedInstanceState, "sessionListFragment");
+        } else {
+            sessionListFragment = SessionListFragment.newInstance(getUid());
+
+        }
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, sessionListFragment).commit();
-
         registerBroadcast();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        getSupportFragmentManager().putFragment(outState, "sessionListFragment", sessionListFragment);
     }
 
     private void fabIsOn() {
@@ -175,6 +188,5 @@ public class MainActivity extends BaseActivity {
         this.unregisterReceiver(this.mReceiver);
         fabIsOff();
     }
-
 
 }

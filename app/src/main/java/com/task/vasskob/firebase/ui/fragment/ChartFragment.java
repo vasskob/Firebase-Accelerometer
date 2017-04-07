@@ -17,7 +17,6 @@ import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.model.Coordinates;
-import com.task.vasskob.firebase.ui.DetailActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +40,9 @@ public class ChartFragment extends Fragment {
     lecho.lib.hellocharts.view.LineChartView chartView;
 
     private Map<String, Coordinates> map;
+    private static String userId;
+    private static String sessionId;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -51,6 +53,13 @@ public class ChartFragment extends Fragment {
         chartView.setZoomEnabled(false);
         loadCoordinates();
         return rootView;
+    }
+
+    public static ChartFragment newInstance(String uid, String sid) {
+        ChartFragment f = new ChartFragment();
+        userId = uid;
+        sessionId = sid;
+        return f;
     }
 
     private void setChartView() {
@@ -91,11 +100,8 @@ public class ChartFragment extends Fragment {
     }
 
     private void loadCoordinates() {
-        // TODO: 05/04/17 send this as arguments, don't cast activity
 
-        String uid = ((DetailActivity) getActivity()).getUid();
-        String sid = ((DetailActivity) getActivity()).sessionId;
-        DatabaseReference ref = FirebaseOperations.getRefForCoordChild(uid, sid);
+        DatabaseReference ref = FirebaseOperations.getRefForCoordChild(userId, sessionId);
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

@@ -19,7 +19,5 @@ public class Constants {
     public static final String USERS = "users";
     public static final String TIME_FORMAT = "yyyy/MM/dd_HH:mm:ss";
     public static final String SERVICE_IS_RUN = "isRUN";
-
-
-
+    public static final String SESSION_ID = "sessionId";
 }

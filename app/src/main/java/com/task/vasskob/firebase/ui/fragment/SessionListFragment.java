@@ -13,11 +13,12 @@ import android.view.ViewGroup;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.Query;
+import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.model.Session;
 import com.task.vasskob.firebase.ui.DetailActivity;
-import com.task.vasskob.firebase.ui.MainActivity;
+import com.task.vasskob.firebase.ui.adapter.SessionListAdapter;
 import com.task.vasskob.firebase.ui.viewholder.SessionViewHolder;
 
 import butterknife.Bind;
@@ -25,11 +26,18 @@ import butterknife.ButterKnife;
 
 public class SessionListFragment extends Fragment {
 
-
     @Bind(R.id.recycle_view)
     RecyclerView recyclerView;
 
+    private static String userId;
     private FirebaseRecyclerAdapter<Session, SessionViewHolder> mAdapter;
+
+    public static SessionListFragment newInstance(String uid) {
+        SessionListFragment f = new SessionListFragment();
+        userId = uid;
+        return f;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -53,22 +61,23 @@ public class SessionListFragment extends Fragment {
         Query sessionsQuery = getQuery();
 
         // TODO: 05/04/17 create custom adapter to hide implementation of view holder
-        mAdapter = new FirebaseRecyclerAdapter<Session, SessionViewHolder>
-                (Session.class, R.layout.session_list_item, SessionViewHolder.class, sessionsQuery) {
-            @Override
-            protected void populateViewHolder(SessionViewHolder viewHolder, final Session session, final int position) {
-                viewHolder.bindToSessions(session);
-                viewHolder.mView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(getActivity(), DetailActivity.class);
-                        // TODO: 05/04/17 WTF!!! don't do this
-                        intent.putExtra("sessionId", session.id);
-                        startActivity(intent);
-                    }
-                });
-            }
-        };
+//        mAdapter = new FirebaseRecyclerAdapter<Session, SessionViewHolder>
+//                (Session.class, R.layout.session_list_item, SessionViewHolder.class, sessionsQuery) {
+//            @Override
+//            protected void populateViewHolder(SessionViewHolder viewHolder, final Session session, final int position) {
+//                viewHolder.bindToSessions(session);
+//                viewHolder.mView.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        Intent intent = new Intent(getActivity(), DetailActivity.class);
+//                        intent.putExtra(Constants.SESSION_ID, session.id);
+//                        startActivity(intent);
+//                    }
+//                });
+//            }
+//        };
+
+        //mAdapter = new SessionListAdapter(getActivity()) ;
 
         recyclerView.setAdapter(mAdapter);
     }
@@ -82,8 +91,6 @@ public class SessionListFragment extends Fragment {
     }
 
     public Query getQuery() {
-        String uid= ((MainActivity) getActivity()).getUid();
-        return FirebaseOperations.getRefForSesChild(uid).limitToLast(100);
-
+        return FirebaseOperations.getRefForSesChild(userId).limitToLast(100);
     }
 }

@@ -123,14 +123,13 @@ public class AccelerometerService extends Service implements SensorEventListener
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
-
     private void sendDataToFirebase(String userKey, long recordTime, int ex, int ey, int ez) {
         long currentTime = System.currentTimeMillis();
         if ((currentTime - lastUpdateTime) > interval * Constants.SEC_TO_MILISEC) {
 
             String coordinateKey = FirebaseOperations.getChildKey(Constants.COORDINATES);
             Coordinates coordinates = new Coordinates(recordTime, ex, ey, ez);
-            // TODO: 05/04/17 you don't need coordinateKey, this value depend on internal state of objec
+            // TODO: 05/04/17 you don't need coordinateKey, this value depend on internal state of object
             FirebaseOperations.sendCoordinatesToDb(userKey, sessionKey, coordinateKey, coordinates);
             lastUpdateTime = currentTime;
 

@@ -1,4 +1,4 @@
-package com.task.vasskob.firebase.ui.pageadapter;
+package com.task.vasskob.firebase.ui.adapter;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
@@ -14,11 +14,11 @@ abstract class BaseFragmentPageAdapter extends FragmentPagerAdapter {
     private final Fragment[] mFragments;
     private final String[] mFragmentNames;
 
-    BaseFragmentPageAdapter(FragmentManager fm, Context context) {
+    BaseFragmentPageAdapter(FragmentManager fm, Context context, String uId, String sId) {
         super(fm);
         mFragments = new Fragment[]{
-                new CoordinateListFragment(),
-                new ChartFragment(),
+                CoordinateListFragment.newInstance(uId, sId),
+                ChartFragment.newInstance(uId,sId),
         };
         mFragmentNames = new String[]{
                 context.getString(R.string.fragment_1),
