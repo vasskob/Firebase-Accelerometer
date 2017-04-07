@@ -44,27 +44,27 @@ public class SignInActivity extends BaseActivity implements
         GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult> {
 
     private static final String TAG = "SignInActivity";
-    public static final String SIGN_IN_FAILED = "Sign In Failed";
-    public static final String SIGN_UP_FAILED = "Sign Up Failed. Check email validity";
-    public static final String EMAIL_WARN = "Pass valid email";
-    public static final String PASSWORD_LENGTH_WARN = "Password must be at least 6 characters long";
+    private static final String SIGN_IN_FAILED = "Sign In Failed";
+    private static final String SIGN_UP_FAILED = "Sign Up Failed. Check email validity";
+    private static final String EMAIL_WARN = "Pass valid email";
+    private static final String PASSWORD_LENGTH_WARN = "Password must be at least 6 characters long";
+    private static final String GOOGLE_PLAY_SERVICES_ERROR = "Google Play Services error.";
+    private static final String AUTHENTICATION_FAILED = "Authentication failed.";
     private static final int RC_SIGN_IN = 1;
-    public static final String GOOGLE_PLAY_SERVICES_ERROR = "Google Play Services error.";
+    public static final String EMAIL = "email";
+    public static final String PUBLIC_PROFILE = "public_profile";
+    private String username;
+    private String userEmail;
 
     private FirebaseAuth mAuth;
+    private GoogleApiClient mGoogleApiClient;
+    private CallbackManager mCallbackManager;
 
     @Bind(R.id.field_email)
     EditText mEmailField;
 
     @Bind(R.id.field_password)
     EditText mPasswordField;
-
-    private GoogleApiClient mGoogleApiClient;
-    private CallbackManager mCallbackManager;
-
-    private String username;
-    private String userEmail;
-
 
     @OnClick(R.id.button_sign_in)
     public void onEmailSignInClick() {
@@ -81,12 +81,10 @@ public class SignInActivity extends BaseActivity implements
         signInGPlus();
     }
 
-
     @OnClick(R.id.facebook_sign_in)
     public void onFSignInClick() {
         singInFacebook();
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +96,6 @@ public class SignInActivity extends BaseActivity implements
 
         initGPlusSignIn();
         initFacebookSignIn();
-
     }
 
 
@@ -109,14 +106,11 @@ public class SignInActivity extends BaseActivity implements
 //        if (mAuth.getCurrentUser() != null) {
 //            onAuthSuccess(mAuth.getCurrentUser());
 //        }
-
-
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
     }
 
     private void signInEmail() {
@@ -172,8 +166,6 @@ public class SignInActivity extends BaseActivity implements
                         }
                     }
                 });
-
-
     }
 
     private void onAuthSuccess(FirebaseUser user) {
@@ -181,7 +173,7 @@ public class SignInActivity extends BaseActivity implements
         User newUser = new User(username, user.getEmail());
 
         // Write new user
-        FirebaseOperations.CreateNewUser(Constants.USERS, user.getUid(), newUser);
+        FirebaseOperations.CreateNewUser(Constants.USERS, newUser);
 
         // Go to MainActivity
         startActivity(new Intent(SignInActivity.this, MainActivity.class));
@@ -285,7 +277,7 @@ public class SignInActivity extends BaseActivity implements
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithCredential", task.getException());
-                            Toast.makeText(SignInActivity.this, "Authentication failed.",
+                            Toast.makeText(SignInActivity.this, AUTHENTICATION_FAILED,
                                     Toast.LENGTH_SHORT).show();
                         } else {
 
@@ -302,7 +294,7 @@ public class SignInActivity extends BaseActivity implements
         Log.d(TAG, "onAuthGPlusSuccess UserName = " + user.getEmail());
 
         User newUser = new User(username, userEmail);
-        FirebaseOperations.CreateNewUser(Constants.USERS, user.getUid(), newUser);
+        FirebaseOperations.CreateNewUser(Constants.USERS, newUser);
     }
 
     @Override
@@ -318,7 +310,7 @@ public class SignInActivity extends BaseActivity implements
     }
 
     private void singInFacebook() {
-        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile"));
+        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList(EMAIL, PUBLIC_PROFILE));
     }
 
     @Override

@@ -10,10 +10,13 @@ import com.task.vasskob.firebase.model.User;
 
 public class FirebaseOperations {
 
-    public static DatabaseReference getInstanceRef() {
+    private static DatabaseReference getInstanceRef() {
         return FirebaseDatabase.getInstance().getReference();
     }
 
+    public static void CreateNewUser(String tableName, User user) {
+           getInstanceRef().child(tableName).push().setValue(user);
+    }
     public static void cleanDb(String uid) {
         getRefForCoordChild(uid).removeValue();
         getRefForSesChild(uid).removeValue();
@@ -44,21 +47,16 @@ public class FirebaseOperations {
         return getInstanceRef().child(Constants.SESSIONS).child(userId);
     }
 
-    public static DatabaseReference getRefForUsersChild(String userId) {
+    private static DatabaseReference getRefForUsersChild(String userId) {
         return getInstanceRef().child(Constants.USERS).child(userId);
     }
     public static void sendCoordinatesToDb(String userId, String sessionId,  Coordinates coordinates) {
-        String coordinateKey = FirebaseOperations.getChildKey(Constants.COORDINATES);
-        getRefForCoordChild(userId, sessionId).child(coordinateKey).setValue(coordinates.toMap());
-
+           getRefForCoordChild(userId, sessionId).push().setValue(coordinates.toMap());
     }
 
     public static void sendSessionToDb(String userId, String sessionId, Session session) {
         getRefForSesChild(userId).child(sessionId).setValue(session.toMap());
     }
 
-    public static void CreateNewUser(String tableName, String userId, User user) {
-        getInstanceRef().child(tableName).child(userId).setValue(user);
-    }
 }
 

@@ -48,7 +48,6 @@ public class DetailActivity extends BaseActivity {
         mViewPager.setAdapter(mPagerAdapter);
         tabLayout.setupWithViewPager(mViewPager);
 
-
     }
 }
 

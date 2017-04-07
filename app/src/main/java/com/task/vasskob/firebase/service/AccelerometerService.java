@@ -20,6 +20,7 @@ import android.util.Log;
 
 import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
+import com.task.vasskob.firebase.event.ServiceIsRunningEvent;
 import com.task.vasskob.firebase.SessionOptions;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.model.Coordinates;
@@ -29,6 +30,8 @@ import com.task.vasskob.firebase.ui.MainActivity;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+
+import de.greenrobot.event.EventBus;
 
 
 public class AccelerometerService extends Service implements SensorEventListener {
@@ -133,7 +136,6 @@ public class AccelerometerService extends Service implements SensorEventListener
         }
         if ((currentTime - startTime) > duration * Constants.SEC_TO_MILISEC) {
             stopService();
-            // TODO: 05/04/17 better to write own action, that describe the event or use EventBus
         }
     }
 
@@ -142,15 +144,12 @@ public class AccelerometerService extends Service implements SensorEventListener
         notificationManager =
                 NotificationManagerCompat.from(getApplicationContext());
         notificationManager.cancelAll();
-        Intent i = new Intent(Constants.INTENT_ACTION_MAIN);
-        i.putExtra(Constants.SERVICE_IS_RUN, false);
-        this.sendBroadcast(i);
+        EventBus.getDefault().post(new ServiceIsRunningEvent(false));
     }
 
     private void serviceStarted() {
-        Intent i = new Intent(Constants.INTENT_ACTION_MAIN);
-        i.putExtra(Constants.SERVICE_IS_RUN, true);
-        this.sendBroadcast(i);
+
+        EventBus.getDefault().post(new ServiceIsRunningEvent(true));
         startNotification(0);
     }
 
@@ -166,7 +165,7 @@ public class AccelerometerService extends Service implements SensorEventListener
                 .setContentTitle(getResources().getString(R.string.notification_title))
                 .setContentText(getResources().getString(R.string.notification_text))
                 .setContentIntent(pi)
-                .addAction(R.drawable.ic_cancel, "STOP", makePendingIntent(BROADCAST_SERVICE_STOP))
+                .addAction(R.drawable.ic_cancel, resources.getString(R.string.notification_stop_btn_title), makePendingIntent(BROADCAST_SERVICE_STOP))
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .build();

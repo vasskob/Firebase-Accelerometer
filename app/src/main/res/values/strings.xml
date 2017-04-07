@@ -44,6 +44,7 @@
     <string name="notification_text">Service is running</string>
 
     <string name="facebook_app_id">778707985618153</string>
+    <string name="notification_stop_btn_title">STOP</string>
 
 
 </resources>

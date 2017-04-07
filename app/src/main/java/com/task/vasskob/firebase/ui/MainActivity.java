@@ -1,10 +1,7 @@
 
 package com.task.vasskob.firebase.ui;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.design.widget.FloatingActionButton;
@@ -14,6 +11,7 @@ import android.view.MenuItem;
 
 import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
+import com.task.vasskob.firebase.event.ServiceIsRunningEvent;
 import com.task.vasskob.firebase.SessionOptions;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.service.AccelerometerService;
@@ -25,12 +23,14 @@ import java.util.concurrent.TimeUnit;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
 
 public class MainActivity extends BaseActivity {
 
+    public static final String SESSION_LIST_FRAGMENT = "sessionListFragment";
     public int interval = Constants.DEFAULT_INTERVAL;
     public int duration = Constants.DEFAULT_DURATION;
-    private BroadcastReceiver mReceiver;
+    private boolean isRunning = false;
 
     @Bind(R.id.fab_run_service)
     public FloatingActionButton fab;
@@ -53,31 +53,30 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    private boolean isRunning = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-
         if (savedInstanceState != null) {
             sessionListFragment = (SessionListFragment) getSupportFragmentManager().
-                    getFragment(savedInstanceState, "sessionListFragment");
+                    getFragment(savedInstanceState, SESSION_LIST_FRAGMENT);
         } else {
             sessionListFragment = SessionListFragment.newInstance(getUid());
 
         }
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, sessionListFragment).commit();
-        registerBroadcast();
+
+        EventBus myEventBus = EventBus.getDefault();
+        myEventBus.register(this);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
-        getSupportFragmentManager().putFragment(outState, "sessionListFragment", sessionListFragment);
+        getSupportFragmentManager().putFragment(outState, SESSION_LIST_FRAGMENT, sessionListFragment);
     }
 
     private void fabIsOn() {
@@ -93,21 +92,13 @@ public class MainActivity extends BaseActivity {
         notificationManager.cancelAll();
     }
 
-    private void registerBroadcast() {
-        IntentFilter intentFilter = new IntentFilter(Constants.INTENT_ACTION_MAIN);
-        mReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getExtras().getBoolean(Constants.SERVICE_IS_RUN)) {
-                    fabIsOn();
-                } else {
-                    fabIsOff();
-                }
-            }
-        };
-        this.registerReceiver(mReceiver, intentFilter);
+    public void onEvent(ServiceIsRunningEvent event) {
+        if (event.isRunning()) {
+            fabIsOn();
+        } else {
+            fabIsOff();
+        }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -185,7 +176,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        this.unregisterReceiver(this.mReceiver);
+        EventBus.getDefault().unregister(this);
         fabIsOff();
     }
 
