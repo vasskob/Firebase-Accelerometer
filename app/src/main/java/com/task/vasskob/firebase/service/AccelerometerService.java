@@ -99,7 +99,7 @@ public class AccelerometerService extends Service implements SensorEventListener
     }
 
     private void initSession() {
-        sessionKey = FirebaseOperations.getChildKey(Constants.SESSIONS);
+        sessionKey = FirebaseOperations.getSessionKey();
         Session session = new Session(sessionKey, interval, duration,
                 getFormattedCurrentTime());
         FirebaseOperations.sendSessionToDb(userId, sessionKey, session);
@@ -150,10 +150,10 @@ public class AccelerometerService extends Service implements SensorEventListener
     private void serviceStarted() {
 
         EventBus.getDefault().post(new ServiceIsRunningEvent(true));
-        startNotification(0);
+        startNotification();
     }
 
-    private void startNotification(int id) {
+    private void startNotification() {
 
         Context context = getApplicationContext();
         Resources resources = context.getResources();
@@ -165,18 +165,18 @@ public class AccelerometerService extends Service implements SensorEventListener
                 .setContentTitle(getResources().getString(R.string.notification_title))
                 .setContentText(getResources().getString(R.string.notification_text))
                 .setContentIntent(pi)
-                .addAction(R.drawable.ic_cancel, resources.getString(R.string.notification_stop_btn_title), makePendingIntent(BROADCAST_SERVICE_STOP))
+                .addAction(R.drawable.ic_cancel, resources.getString(R.string.notification_stop_btn_title), makePendingIntent())
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .build();
         notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(id, notification);
+        notificationManager.notify(0, notification);
         Log.i("myLog", "NotificationAboutLoading");
 
     }
 
-    private PendingIntent makePendingIntent(String broadcast) {
-        Intent intent = new Intent(broadcast);
+    private PendingIntent makePendingIntent() {
+        Intent intent = new Intent(BROADCAST_SERVICE_STOP);
         return PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
     }
 

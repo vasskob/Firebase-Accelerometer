@@ -8,7 +8,6 @@ public class Constants {
     public static final int HOUR_TO_MIN = 60;
     public static final long DAY_TO_MINUTES = 1440;
     public static final String USERS_SESSIONS_COORDINATES = "users-sessions-coordinates";
-    public static final String COORDINATES = "coordinates";
     public static final String SESSIONS = "sessions";
     public static final String USERS = "users";
     public static final String OPTIONS_KEY = "options";

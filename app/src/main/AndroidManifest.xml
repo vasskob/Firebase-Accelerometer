@@ -35,10 +35,11 @@
             android:label="@string/detail_activity"
             android:theme="@style/AppTheme"/>
 
-        <activity android:name=".ui.SignInActivity">
+        <activity
+            android:name=".ui.SignInActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>

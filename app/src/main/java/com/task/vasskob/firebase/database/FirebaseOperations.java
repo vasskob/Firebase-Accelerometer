@@ -14,9 +14,10 @@ public class FirebaseOperations {
         return FirebaseDatabase.getInstance().getReference();
     }
 
-    public static void CreateNewUser(String tableName, User user) {
-           getInstanceRef().child(tableName).push().setValue(user);
+    public static void CreateNewUser(User user) {
+        getInstanceRef().child(Constants.USERS).push().setValue(user);
     }
+
     public static void cleanDb(String uid) {
         getRefForCoordChild(uid).removeValue();
         getRefForSesChild(uid).removeValue();
@@ -28,11 +29,11 @@ public class FirebaseOperations {
     }
 
     public static FirebaseAuth signInRef() {
-       return FirebaseAuth.getInstance();
+        return FirebaseAuth.getInstance();
     }
 
-    public static String getChildKey(String childId) {
-        return getInstanceRef().child(childId).push().getKey();
+    public static String getSessionKey() {
+        return getInstanceRef().child(Constants.SESSIONS).push().getKey();
     }
 
     public static DatabaseReference getRefForCoordChild(String userId, String sessionId) {
@@ -50,8 +51,9 @@ public class FirebaseOperations {
     private static DatabaseReference getRefForUsersChild(String userId) {
         return getInstanceRef().child(Constants.USERS).child(userId);
     }
-    public static void sendCoordinatesToDb(String userId, String sessionId,  Coordinates coordinates) {
-           getRefForCoordChild(userId, sessionId).push().setValue(coordinates.toMap());
+
+    public static void sendCoordinatesToDb(String userId, String sessionId, Coordinates coordinates) {
+        getRefForCoordChild(userId, sessionId).push().setValue(coordinates.toMap());
     }
 
     public static void sendSessionToDb(String userId, String sessionId, Session session) {

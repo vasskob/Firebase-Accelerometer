@@ -1,6 +1,5 @@
 package com.task.vasskob.firebase.ui.adapter;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
@@ -41,7 +40,7 @@ public class CoordinateListAdapter extends FirebaseRecyclerAdapter<Coordinates, 
             ButterKnife.bind(this, itemView);
         }
 
-        public void bindToCoordinates(Coordinates coordinates) {
+        private void bindToCoordinates(Coordinates coordinates) {
             String formattedTime = new SimpleDateFormat("MM/dd/yyyy_HH:mm:ss", Locale.US).format(coordinates.recordTime);
             recordingTime.setText(formattedTime);
             accelerometerData.setText("(" + coordinates.coordinateX + "," + coordinates.coordinateY + "," + coordinates.coordinateZ + ")");

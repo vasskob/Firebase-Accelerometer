@@ -28,7 +28,6 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.model.User;
@@ -173,7 +172,7 @@ public class SignInActivity extends BaseActivity implements
         User newUser = new User(username, user.getEmail());
 
         // Write new user
-        FirebaseOperations.CreateNewUser(Constants.USERS, newUser);
+        FirebaseOperations.CreateNewUser(newUser);
 
         // Go to MainActivity
         startActivity(new Intent(SignInActivity.this, MainActivity.class));
@@ -294,7 +293,7 @@ public class SignInActivity extends BaseActivity implements
         Log.d(TAG, "onAuthGPlusSuccess UserName = " + user.getEmail());
 
         User newUser = new User(username, userEmail);
-        FirebaseOperations.CreateNewUser(Constants.USERS, newUser);
+        FirebaseOperations.CreateNewUser(newUser);
     }
 
     @Override
