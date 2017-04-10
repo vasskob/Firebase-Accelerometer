@@ -16,16 +16,23 @@ import com.task.vasskob.firebase.service.MyUploadService;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class LoadFileFromStorage extends BaseActivity {
 
     private static final int FILE_SELECT_CODE = 0;
     private static final String TAG = LoadFileFromStorage.class.getSimpleName();
 
-    @Bind(R.id.upload_file_btn)
-    Button uploadFileBtn;
-    @Bind(R.id.accelerometer_btn)
-    Button accelerometerBtn;
+    @OnClick(R.id.upload_file_btn)
+    public void onUploadBtnClick() {
+        showFileChooser();
+    }
+
+    @OnClick(R.id.accelerometer_btn)
+    public void onAccelerometerBtnClick() {
+        startActivity(new Intent(LoadFileFromStorage.this, MainActivity.class));
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,18 +40,6 @@ public class LoadFileFromStorage extends BaseActivity {
         setContentView(R.layout.activity_load_file);
         ButterKnife.bind(this);
 
-        uploadFileBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showFileChooser();
-            }
-        });
-        accelerometerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoadFileFromStorage.this, MainActivity.class));
-            }
-        });
     }
 
 
@@ -77,12 +72,11 @@ public class LoadFileFromStorage extends BaseActivity {
                         if (clipData != null) {
                             for (int i = 0; i < clipData.getItemCount(); i++) {
                                 ClipData.Item item = clipData.getItemAt(i);
-                               uri = item.getUri();
+                                uri = item.getUri();
                                 uploadFromUri(uri);
                             }
-                        }
-                        else {
-                            uri=data.getData();
+                        } else {
+                            uri = data.getData();
                             uploadFromUri(uri);
                         }
                     }
