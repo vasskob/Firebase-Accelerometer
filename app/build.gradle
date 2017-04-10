@@ -33,14 +33,14 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
 
 
-    compile 'com.google.firebase:firebase-auth:10.2.1'
-    compile 'com.google.android.gms:play-services-auth:10.2.1'
 
+    compile 'com.google.android.gms:play-services-auth:10.2.1'
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
 
-
+    compile 'com.google.firebase:firebase-auth:10.2.1'
     compile 'com.google.firebase:firebase-database:10.2.1'
     compile 'com.firebaseui:firebase-ui-database:1.0.0'
+    compile 'com.google.firebase:firebase-storage:10.2.1'
 
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
     androidTestCompile 'com.android.support.test:runner:0.5'
@@ -50,7 +50,6 @@ dependencies {
 
     compile 'de.greenrobot:eventbus:2.4.0'
 
-    compile 'joda-time:joda-time:2.9.4'
 }
 repositories {
     mavenCentral()

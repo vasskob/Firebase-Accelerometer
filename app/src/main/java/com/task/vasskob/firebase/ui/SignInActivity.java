@@ -175,7 +175,7 @@ public class SignInActivity extends BaseActivity implements
         FirebaseOperations.CreateNewUser(newUser);
 
         // Go to MainActivity
-        startActivity(new Intent(SignInActivity.this, MainActivity.class));
+        startActivity(new Intent(SignInActivity.this, LoadFileFromStorage.class));
         finish();
     }
 
@@ -281,7 +281,7 @@ public class SignInActivity extends BaseActivity implements
                         } else {
 
                             onAuthGPlusSuccess(task.getResult().getUser());
-                            startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                            startActivity(new Intent(SignInActivity.this, LoadFileFromStorage.class));
                             finish();
                         }
                         hideProgressDialog();

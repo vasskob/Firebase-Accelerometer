@@ -1,12 +1,25 @@
 package com.task.vasskob.firebase.database;
 
+import android.net.Uri;
+import android.support.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnPausedListener;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.model.Coordinates;
 import com.task.vasskob.firebase.model.Session;
 import com.task.vasskob.firebase.model.User;
+
+import java.io.File;
 
 public class FirebaseOperations {
 
@@ -59,6 +72,16 @@ public class FirebaseOperations {
     public static void sendSessionToDb(String userId, String sessionId, Session session) {
         getRefForSesChild(userId).child(sessionId).setValue(session.toMap());
     }
+
+    public static void uploadFileToFirebase(String filePath) {
+
+
+    }
+
+    public static StorageReference getStorageRef(String child1, String child2) {
+        return FirebaseStorage.getInstance().getReference().child(child1).child(child2);
+    }
+
 
 }
 
