@@ -18,6 +18,8 @@ import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.ui.LoadFileFromStorage;
 
+import java.util.ArrayList;
+
 /**
  * Service to handle uploading files to Firebase Storage.
  */
@@ -50,8 +52,14 @@ public class MyUploadService extends MyBaseTaskService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand:" + intent + ":" + startId);
         if (ACTION_UPLOAD.equals(intent.getAction())) {
-            Uri fileUri = intent.getParcelableExtra(EXTRA_FILE_URI);
-            uploadFromUri(fileUri);
+
+            ArrayList<Uri> fileUris = intent.getParcelableArrayListExtra(EXTRA_FILE_URI);
+            Log.d(TAG, "onStartCommand: fileUris = " + fileUris );
+
+            for (Uri uri : fileUris) {
+                uploadFromUri(uri);
+            }
+
         }
 
         return START_REDELIVER_INTENT;
@@ -68,7 +76,7 @@ public class MyUploadService extends MyBaseTaskService {
         // [END_EXCLUDE]
 
         // [START get_child_ref]
-        // Get a reference to store file at photos/<FILENAME>.jpg
+        // Get a reference to store file at media files
         final StorageReference mediaRef = FirebaseOperations.getStorageRef("media files",fileUri.getLastPathSegment());
         // [END get_child_ref]
 

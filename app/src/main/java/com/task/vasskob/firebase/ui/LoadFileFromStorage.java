@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -12,8 +13,12 @@ import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.service.MyUploadService;
 
+import java.util.ArrayList;
+
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 
 public class LoadFileFromStorage extends BaseActivity {
 
@@ -41,7 +46,9 @@ public class LoadFileFromStorage extends BaseActivity {
 
 
     private void showFileChooser() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        // Intent.ACTION_OPEN_DOCUMENT needs hear for long term access to files by URI,
+        // in this case when activity is killed
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -59,24 +66,29 @@ public class LoadFileFromStorage extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Uri uri;
+        //  Uri[] uris;
+        ArrayList<Uri> uris = new ArrayList<>();
+
         switch (requestCode) {
             case FILE_SELECT_CODE:
                 if (resultCode == RESULT_OK) {
+
 
                     if (data != null) {
                         ClipData clipData = data.getClipData();
                         if (clipData != null) {
                             for (int i = 0; i < clipData.getItemCount(); i++) {
                                 ClipData.Item item = clipData.getItemAt(i);
-                                uri = item.getUri();
-                                uploadFromUri(uri);
+                                uris.add(item.getUri());
                             }
                         } else {
-                            uri = data.getData();
-                            uploadFromUri(uri);
+                            uris.add(data.getData());
                         }
+                        Log.d(TAG, "onActivityResult URIS = " + uris);
+                        uploadFromUri(uris);
                     }
+
+
                 }
                 break;
         }
@@ -84,10 +96,12 @@ public class LoadFileFromStorage extends BaseActivity {
     }
 
 
-    private void uploadFromUri(Uri uri) {
+    private void uploadFromUri(ArrayList<Uri> uris) {
+
         startService(new Intent(this, MyUploadService.class)
-                .putExtra(MyUploadService.EXTRA_FILE_URI, uri)
-                .setAction(MyUploadService.ACTION_UPLOAD));
+                .putExtra(MyUploadService.EXTRA_FILE_URI, uris)
+                .setAction(MyUploadService.ACTION_UPLOAD)
+        );
     }
 
 
