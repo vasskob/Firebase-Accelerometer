@@ -27,7 +27,7 @@ public class CoordinateListAdapter extends FirebaseRecyclerAdapter<Coordinates, 
         viewHolder.bindToCoordinates(coord);
     }
 
-    static class CoordViewHolder extends RecyclerView.ViewHolder {
+    public static class CoordViewHolder extends RecyclerView.ViewHolder {
 
         @Bind(R.id.tv_coord_time)
         TextView recordingTime;

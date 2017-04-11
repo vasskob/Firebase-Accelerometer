@@ -41,7 +41,7 @@ public class SessionListAdapter extends FirebaseRecyclerAdapter<Session, Session
     }
 
 
-    static class SessionViewHolder extends RecyclerView.ViewHolder {
+    public static class SessionViewHolder extends RecyclerView.ViewHolder {
 
         View mView;
         @Bind(R.id.session_start_time)
