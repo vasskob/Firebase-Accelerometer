@@ -11,9 +11,9 @@ import android.view.MenuItem;
 
 import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
-import com.task.vasskob.firebase.event.ServiceIsRunningEvent;
 import com.task.vasskob.firebase.SessionOptions;
 import com.task.vasskob.firebase.database.FirebaseOperations;
+import com.task.vasskob.firebase.event.ServiceIsRunningEvent;
 import com.task.vasskob.firebase.service.AccelerometerService;
 import com.task.vasskob.firebase.ui.fragment.SessionListFragment;
 import com.task.vasskob.firebase.ui.fragment.TimePickerFragment;
@@ -62,12 +62,14 @@ public class MainActivity extends BaseActivity {
         if (savedInstanceState != null) {
             sessionListFragment = (SessionListFragment) getSupportFragmentManager().
                     getFragment(savedInstanceState, SESSION_LIST_FRAGMENT);
+            // fragment is already added, no need to do this again
         } else {
             sessionListFragment = SessionListFragment.newInstance(getUid());
 
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, sessionListFragment).commit();
         }
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, sessionListFragment).commit();
+
 
         EventBus myEventBus = EventBus.getDefault();
         myEventBus.register(this);

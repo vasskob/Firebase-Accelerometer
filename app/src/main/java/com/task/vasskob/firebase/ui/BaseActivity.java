@@ -27,7 +27,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public String getUid() {
-
+        // TODO: 11/04/17 seems that user id from user table has no relation from this uid
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 

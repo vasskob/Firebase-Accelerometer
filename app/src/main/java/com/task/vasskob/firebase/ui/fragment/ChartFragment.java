@@ -72,13 +72,12 @@ public class ChartFragment extends Fragment {
             HashMap<String, Coordinates> copy = new HashMap<>(map);
             List<Coordinates> coordinatesList = sortCoordinatesMap(copy);
 
-            for (int i = 0; i < coordinatesList.size(); i++) {
-
-                float startTimeInSec = (coordinatesList.get(i).recordTime - coordinatesList.get(0).recordTime) / Constants.SEC_TO_MILISEC;
-                valuesX.add(new PointValue(startTimeInSec, coordinatesList.get(i).coordinateX));
-                valuesY.add(new PointValue(startTimeInSec, coordinatesList.get(i).coordinateY));
-                valuesZ.add(new PointValue(startTimeInSec, coordinatesList.get(i).coordinateZ));
-                Log.d("ChartFragment", "setChartView valueX= " + valuesX.get(i));
+            for (Coordinates coordinates : coordinatesList) {
+                float startTimeInSec = (coordinates.recordTime - coordinatesList.get(0).recordTime) / Constants.SEC_TO_MILISEC;
+                valuesX.add(new PointValue(startTimeInSec, coordinates.coordinateX));
+                valuesY.add(new PointValue(startTimeInSec, coordinates.coordinateY));
+                valuesZ.add(new PointValue(startTimeInSec, coordinates.coordinateZ));
+//                Log.d("ChartFragment", "setChartView valueX= " + valuesX.get(i));
             }
         }
 

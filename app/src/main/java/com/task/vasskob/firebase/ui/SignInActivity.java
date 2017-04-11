@@ -172,6 +172,7 @@ public class SignInActivity extends BaseActivity implements
         User newUser = new User(username, user.getEmail());
 
         // Write new user
+        // TODO: 11/04/17 new user created each time
         FirebaseOperations.CreateNewUser(newUser);
 
         // Go to MainActivity
@@ -226,6 +227,7 @@ public class SignInActivity extends BaseActivity implements
                 .build();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
+                //todo avoid this usage where it is not obviously
                 .enableAutoManage(this, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
@@ -247,6 +249,7 @@ public class SignInActivity extends BaseActivity implements
             }
         } else {
             // For facebook log in callback
+            // TODO: 11/04/17 check request code
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -290,7 +293,9 @@ public class SignInActivity extends BaseActivity implements
     }
 
     private void onAuthGPlusSuccess(FirebaseUser user) {
+        // TODO: 11/04/17 don't repeat yourself check private void onAuthSuccess(FirebaseUser user)
         Log.d(TAG, "onAuthGPlusSuccess UserName = " + user.getEmail());
+        // TODO: 11/04/17 new user created each time
 
         User newUser = new User(username, userEmail);
         FirebaseOperations.CreateNewUser(newUser);
@@ -320,6 +325,7 @@ public class SignInActivity extends BaseActivity implements
 
     @Override
     public void onCancel() {
+        // TODO: 11/04/17 cancel what?
     }
 
     @Override

@@ -33,6 +33,8 @@ public class SessionListAdapter extends FirebaseRecyclerAdapter<Session, Session
         viewHolder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // TODO: 11/04/17 do not overload your adapter, send session click event to activity/fragment and handle there
+                // TODO: 11/04/17 about properly on click, check https://youtu.be/imsr8NrIAMs?t=34m52s
                 Intent intent = new Intent(context, DetailActivity.class);
                 intent.putExtra(Constants.SESSION_ID, session.id);
                 context.startActivity(intent);
