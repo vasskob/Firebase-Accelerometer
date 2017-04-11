@@ -13,6 +13,15 @@ android {
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
 
+    signingConfigs {
+        config {
+            keyAlias 'firebase'
+            keyPassword '17801780'
+            storeFile file('firebase.jks')
+            storePassword '17801780'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
