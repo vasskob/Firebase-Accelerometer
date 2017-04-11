@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "647444361123-jgo053adg9qu4uo35jhf0kdhlbho4ps2.apps.googleusercontent.com",
+          "client_id": "647444361123-gjc6j4qg8jdmm91thcjgvpjc71a9h1q0.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.task.vasskob.firebaseAccelerometer",
-            "certificate_hash": "1eb76f1bb2c4e8b0fa9cf0cf64aec397cf3d37dc"
+            "certificate_hash": "fcae8f801e1bf4b95a6780a10668b681d6fadd3e"
           }
         },
         {
