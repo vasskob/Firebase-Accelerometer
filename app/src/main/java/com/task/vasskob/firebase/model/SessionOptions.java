@@ -1,9 +1,8 @@
-package com.task.vasskob.firebase;
+package com.task.vasskob.firebase.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-// TODO: 11/04/17 model package?
 public class SessionOptions implements Parcelable {
     private String uid;
     private int interval;

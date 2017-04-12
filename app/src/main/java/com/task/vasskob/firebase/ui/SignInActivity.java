@@ -12,6 +12,7 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.Auth;
@@ -40,8 +41,10 @@ import butterknife.OnClick;
 
 
 public class SignInActivity extends BaseActivity implements
-        GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult> {
+        FacebookCallback<LoginResult> {
 
+    public static final String EMAIL = "email";
+    public static final String PUBLIC_PROFILE = "public_profile";
     private static final String TAG = "SignInActivity";
     private static final String SIGN_IN_FAILED = "Sign In Failed";
     private static final String SIGN_UP_FAILED = "Sign Up Failed. Check email validity";
@@ -49,9 +52,8 @@ public class SignInActivity extends BaseActivity implements
     private static final String PASSWORD_LENGTH_WARN = "Password must be at least 6 characters long";
     private static final String GOOGLE_PLAY_SERVICES_ERROR = "Google Play Services error.";
     private static final String AUTHENTICATION_FAILED = "Authentication failed.";
-    private static final int RC_SIGN_IN = 1;
-    public static final String EMAIL = "email";
-    public static final String PUBLIC_PROFILE = "public_profile";
+    private static final String FB_SIGN_IN_CANCELED = "Facebook sign in canceled";
+    private static final int RC_SIGN_IN_GOOGLE = 1;
     private String username;
     private String userEmail;
 
@@ -90,11 +92,12 @@ public class SignInActivity extends BaseActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
         ButterKnife.bind(this);
-
         mAuth = FirebaseOperations.signInRef();
 
         initGPlusSignIn();
         initFacebookSignIn();
+
+
     }
 
 
@@ -216,7 +219,7 @@ public class SignInActivity extends BaseActivity implements
     // G+ Authentication Section
     private void signInGPlus() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+        startActivityForResult(signInIntent, RC_SIGN_IN_GOOGLE);
     }
 
     private void initGPlusSignIn() {
@@ -227,8 +230,13 @@ public class SignInActivity extends BaseActivity implements
                 .build();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-                //todo avoid this usage where it is not obviously
-                .enableAutoManage(this, this)
+                .enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+                        Log.d(TAG, "GoogleApiClient onConnectionFailed:" + connectionResult);
+                        Toast.makeText(getApplication(), GOOGLE_PLAY_SERVICES_ERROR, Toast.LENGTH_SHORT).show();
+                    }
+                })
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
     }
@@ -237,7 +245,7 @@ public class SignInActivity extends BaseActivity implements
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_SIGN_IN_GOOGLE) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
                 // Google Sign In was successful, authenticate with Firebase
@@ -247,9 +255,7 @@ public class SignInActivity extends BaseActivity implements
                 // Google Sign In failed, update UI appropriately
                 Toast.makeText(this, GOOGLE_PLAY_SERVICES_ERROR, Toast.LENGTH_SHORT).show();
             }
-        } else {
-            // For facebook log in callback
-            // TODO: 11/04/17 check request code
+        } else if (FacebookSdk.isFacebookRequestCode(requestCode)) {
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -301,16 +307,13 @@ public class SignInActivity extends BaseActivity implements
         FirebaseOperations.CreateNewUser(newUser);
     }
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(TAG, "onConnectionFailed:" + connectionResult);
-        Toast.makeText(this, GOOGLE_PLAY_SERVICES_ERROR, Toast.LENGTH_SHORT).show();
-    }
 
     // Facebook Authentication Section
     private void initFacebookSignIn() {
+
         mCallbackManager = CallbackManager.Factory.create();
         LoginManager.getInstance().registerCallback(mCallbackManager, this);
+
     }
 
     private void singInFacebook() {
@@ -325,7 +328,7 @@ public class SignInActivity extends BaseActivity implements
 
     @Override
     public void onCancel() {
-        // TODO: 11/04/17 cancel what?
+        Toast.makeText(this, FB_SIGN_IN_CANCELED, Toast.LENGTH_SHORT).show();
     }
 
     @Override

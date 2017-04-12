@@ -23,8 +23,6 @@ public class FirebaseOperations {
     public static void cleanDb(String uid) {
         getRefForCoordChild(uid).removeValue();
         getRefForSesChild(uid).removeValue();
-        // TODO: 11/04/17 why you need to clear user data
-        getRefForUsersChild(uid).removeValue();
     }
 
     public static void logout() {
@@ -51,10 +49,6 @@ public class FirebaseOperations {
         return getInstanceRef().child(Constants.SESSIONS).child(userId);
     }
 
-    private static DatabaseReference getRefForUsersChild(String userId) {
-        return getInstanceRef().child(Constants.USERS).child(userId);
-    }
-
     public static void sendCoordinatesToDb(String userId, String sessionId, Coordinates coordinates) {
         getRefForCoordChild(userId, sessionId).push().setValue(coordinates.toMap());
     }
@@ -63,10 +57,8 @@ public class FirebaseOperations {
         getRefForSesChild(userId).child(sessionId).setValue(session.toMap());
     }
 
-    public static void uploadFileToFirebase(String filePath) {
-
-
-    }
+//    public static void uploadFileToFirebase(String filePath) {
+//    }
 
     public static StorageReference getStorageRef(String child1, String child2) {
         return FirebaseStorage.getInstance().getReference().child(child1).child(child2);

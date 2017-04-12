@@ -21,7 +21,7 @@ import android.util.Log;
 import com.task.vasskob.firebase.Constants;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.event.ServiceIsRunningEvent;
-import com.task.vasskob.firebase.SessionOptions;
+import com.task.vasskob.firebase.model.SessionOptions;
 import com.task.vasskob.firebase.database.FirebaseOperations;
 import com.task.vasskob.firebase.model.Coordinates;
 import com.task.vasskob.firebase.model.Session;

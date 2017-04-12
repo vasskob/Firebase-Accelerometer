@@ -13,7 +13,7 @@ import android.text.format.DateFormat;
 import android.widget.TimePicker;
 
 import com.task.vasskob.firebase.Constants;
-import com.task.vasskob.firebase.SessionOptions;
+import com.task.vasskob.firebase.model.SessionOptions;
 import com.task.vasskob.firebase.service.AccelerometerService;
 
 import java.util.Calendar;
