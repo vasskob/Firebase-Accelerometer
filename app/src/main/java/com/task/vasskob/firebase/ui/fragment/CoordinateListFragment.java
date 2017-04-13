@@ -1,10 +1,9 @@
 package com.task.vasskob.firebase.ui.fragment;
 
-import android.content.Context;
-
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.Query;
 import com.task.vasskob.firebase.database.FirebaseOperations;
+import com.task.vasskob.firebase.listener.OnSessionClickListener;
 import com.task.vasskob.firebase.ui.adapter.CoordinateListAdapter;
 
 public class CoordinateListFragment extends ListFragment {
@@ -20,13 +19,19 @@ public class CoordinateListFragment extends ListFragment {
         return f;
     }
 
+
     @Override
-    public FirebaseRecyclerAdapter getAdapter(Query query, Context context) {
+    public FirebaseRecyclerAdapter getAdapter(Query query, OnSessionClickListener onSessionClickListener) {
         return new CoordinateListAdapter(query);
     }
 
     @Override
     public Query getQuery() {
         return FirebaseOperations.getRefForCoordChild(userId, sessionId).limitToLast(100);
+    }
+
+    @Override
+    public OnSessionClickListener getListener() {
+        return null;
     }
 }

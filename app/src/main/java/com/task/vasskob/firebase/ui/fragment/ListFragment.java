@@ -1,6 +1,5 @@
 package com.task.vasskob.firebase.ui.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,6 +13,7 @@ import android.view.ViewGroup;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.Query;
 import com.task.vasskob.firebase.R;
+import com.task.vasskob.firebase.listener.OnSessionClickListener;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -44,9 +44,23 @@ public abstract class ListFragment extends Fragment {
         recyclerView.addItemDecoration(dividerItemDecoration);
 
         // Set up FirebaseRecyclerAdapter with the Query
+        init();
+    }
 
-        mAdapter = getAdapter(getQuery(), getActivity());
+    private void init() {
+
+        mAdapter = getAdapter(getQuery(), getListener());
         recyclerView.setAdapter(mAdapter);
+
+//        ((SessionListAdapter)mAdapter).setOnClickListener(new OnSessionClickListener() {
+//            @Override
+//            public void onSessionClick(int position) {
+//
+//            }
+//        });
+
+
+
     }
 
     @Override
@@ -57,9 +71,11 @@ public abstract class ListFragment extends Fragment {
         }
     }
 
-    public abstract FirebaseRecyclerAdapter getAdapter(Query query, Context context);
+    public abstract FirebaseRecyclerAdapter getAdapter(Query query, OnSessionClickListener onSessionClickListener);
 
     public abstract Query getQuery();
+
+    public abstract OnSessionClickListener getListener();
 
 
 }
