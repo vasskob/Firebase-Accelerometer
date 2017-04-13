@@ -18,12 +18,10 @@ import java.util.ArrayList;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
-
-public class LoadFileFromStorage extends BaseActivity {
+public class UpLoadFileActivity extends BaseActivity {
 
     private static final int FILE_SELECT_CODE = 0;
-    private static final String TAG = LoadFileFromStorage.class.getSimpleName();
+    private static final String TAG = UpLoadFileActivity.class.getSimpleName();
 
     @OnClick(R.id.upload_file_btn)
     public void onUploadBtnClick() {
@@ -32,7 +30,7 @@ public class LoadFileFromStorage extends BaseActivity {
 
     @OnClick(R.id.accelerometer_btn)
     public void onAccelerometerBtnClick() {
-        startActivity(new Intent(LoadFileFromStorage.this, MainActivity.class));
+        startActivity(new Intent(UpLoadFileActivity.this, MainActivity.class));
     }
 
 

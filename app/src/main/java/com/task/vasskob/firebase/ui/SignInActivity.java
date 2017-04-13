@@ -54,9 +54,9 @@ public class SignInActivity extends BaseActivity implements
     private static final String AUTHENTICATION_FAILED = "Authentication failed.";
     private static final String FB_SIGN_IN_CANCELED = "Facebook sign in canceled";
     private static final int RC_SIGN_IN_GOOGLE = 1;
-    private String username;
-    private String userEmail;
-
+    private String userNameGPlus;
+    private String userEmailGPlus;
+    private boolean signInWithEmail = true;
     private FirebaseAuth mAuth;
     private GoogleApiClient mGoogleApiClient;
     private CallbackManager mCallbackManager;
@@ -100,22 +100,7 @@ public class SignInActivity extends BaseActivity implements
 
     }
 
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check auth on Activity start
-//        if (mAuth.getCurrentUser() != null) {
-//            onAuthSuccess(mAuth.getCurrentUser());
-//        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    private void signInEmail() {
+private void signInEmail() {
         Log.d(TAG, "signIn");
         if (!validateForm()) {
             return;
@@ -133,6 +118,7 @@ public class SignInActivity extends BaseActivity implements
                         hideProgressDialog();
 
                         if (task.isSuccessful()) {
+                            signInWithEmail = true;
                             onAuthSuccess(task.getResult().getUser());
                         } else {
 
@@ -171,15 +157,20 @@ public class SignInActivity extends BaseActivity implements
     }
 
     private void onAuthSuccess(FirebaseUser user) {
-        String username = usernameFromEmail(user.getEmail());
-        User newUser = new User(username, user.getEmail());
+
+        User newUser;
+        if (signInWithEmail) {
+            String username = usernameFromEmail(user.getEmail());
+            newUser = new User(username, user.getEmail());
+        } else {
+            newUser = new User(userNameGPlus, userEmailGPlus);
+        }
 
         // Write new user
-        // TODO: 11/04/17 new user created each time
-        FirebaseOperations.CreateNewUser(newUser);
+        FirebaseOperations.CreateNewUser(user.getUid(), newUser);
 
-        // Go to MainActivity
-        startActivity(new Intent(SignInActivity.this, LoadFileFromStorage.class));
+        // Go to UpLoadFileActivity
+        startActivity(new Intent(SignInActivity.this, UpLoadFileActivity.class));
         finish();
     }
 
@@ -239,7 +230,7 @@ public class SignInActivity extends BaseActivity implements
                 })
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
-    }
+     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -268,8 +259,8 @@ public class SignInActivity extends BaseActivity implements
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         sighInWithCred(credential);
 
-        username = acct.getDisplayName();
-        userEmail = acct.getEmail();
+        userNameGPlus = acct.getDisplayName();
+        userEmailGPlus = acct.getEmail();
 
     }
 
@@ -288,25 +279,14 @@ public class SignInActivity extends BaseActivity implements
                             Toast.makeText(SignInActivity.this, AUTHENTICATION_FAILED,
                                     Toast.LENGTH_SHORT).show();
                         } else {
+                            signInWithEmail = false;
+                            onAuthSuccess(task.getResult().getUser());
 
-                            onAuthGPlusSuccess(task.getResult().getUser());
-                            startActivity(new Intent(SignInActivity.this, LoadFileFromStorage.class));
-                            finish();
                         }
                         hideProgressDialog();
                     }
                 });
     }
-
-    private void onAuthGPlusSuccess(FirebaseUser user) {
-        // TODO: 11/04/17 don't repeat yourself check private void onAuthSuccess(FirebaseUser user)
-        Log.d(TAG, "onAuthGPlusSuccess UserName = " + user.getEmail());
-        // TODO: 11/04/17 new user created each time
-
-        User newUser = new User(username, userEmail);
-        FirebaseOperations.CreateNewUser(newUser);
-    }
-
 
     // Facebook Authentication Section
     private void initFacebookSignIn() {

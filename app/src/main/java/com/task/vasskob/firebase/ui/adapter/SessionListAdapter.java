@@ -64,7 +64,5 @@ public class SessionListAdapter extends FirebaseRecyclerAdapter<Session, Session
             sessionDuration.setText("duration " + session.duration + "s");
             sessionInterval.setText("interval " + session.interval + "s");
         }
-
     }
-
 }

@@ -16,7 +16,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.task.vasskob.firebase.R;
 import com.task.vasskob.firebase.database.FirebaseOperations;
-import com.task.vasskob.firebase.ui.LoadFileFromStorage;
+import com.task.vasskob.firebase.ui.UpLoadFileActivity;
 
 import java.util.ArrayList;
 
@@ -147,7 +147,7 @@ public class MyUploadService extends MyBaseTaskService {
         dismissProgressNotification();
 
         // Make Intent to MainActivity
-        Intent intent = new Intent(this, LoadFileFromStorage.class)
+        Intent intent = new Intent(this, UpLoadFileActivity.class)
                 .putExtra(EXTRA_DOWNLOAD_URL, downloadUrl)
                 .putExtra(EXTRA_FILE_URI, fileUri)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);

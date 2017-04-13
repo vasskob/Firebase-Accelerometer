@@ -24,7 +24,7 @@
         <activity
             android:name=".ui.BaseActivity"/>
         <activity
-            android:name=".ui.LoadFileFromStorage"
+            android:name=".ui.UpLoadFileActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
         <activity
