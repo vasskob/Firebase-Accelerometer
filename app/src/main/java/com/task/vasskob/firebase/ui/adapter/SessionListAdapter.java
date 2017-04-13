@@ -29,7 +29,7 @@ public class SessionListAdapter extends FirebaseRecyclerAdapter<Session, Session
 
     @Override
     protected void populateViewHolder(SessionViewHolder viewHolder, final Session session, int position) {
-        viewHolder.bindToSessions(session, context, viewHolder.getAdapterPosition());
+        viewHolder.bindToSessions(session, context);
     }
 
 
@@ -45,7 +45,6 @@ public class SessionListAdapter extends FirebaseRecyclerAdapter<Session, Session
         View mView;
         Context mContext;
         Session mSession;
-        int mPosition;
 
         public SessionViewHolder(View itemView) {
             super(itemView);
@@ -56,7 +55,8 @@ public class SessionListAdapter extends FirebaseRecyclerAdapter<Session, Session
                 public void onClick(View v) {
                     // TODO: 11/04/17 do not overload your adapter, send session click event to activity/fragment and handle there
                     // TODO: 11/04/17 about properly on click, check https://youtu.be/imsr8NrIAMs?t=34m52s
-                    if (mPosition != RecyclerView.NO_POSITION){
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION){
                         Intent intent = new Intent(mContext, DetailActivity.class);
                         intent.putExtra(Constants.SESSION_ID, mSession.id);
                         mContext.startActivity(intent);
@@ -65,7 +65,7 @@ public class SessionListAdapter extends FirebaseRecyclerAdapter<Session, Session
             });
         }
 
-        void bindToSessions(Session session, Context context, int position) {
+        void bindToSessions(Session session, Context context) {
             sessionStartTime.setText(session.startTime);
             sessionDuration.setText("duration " + session.duration + "s");
             sessionInterval.setText("interval " + session.interval + "s");
