@@ -29,23 +29,12 @@ public class SessionListAdapter extends FirebaseRecyclerAdapter<Session, Session
 
     @Override
     protected void populateViewHolder(SessionViewHolder viewHolder, final Session session, int position) {
-        viewHolder.bindToSessions(session);
-        viewHolder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: 11/04/17 do not overload your adapter, send session click event to activity/fragment and handle there
-                // TODO: 11/04/17 about properly on click, check https://youtu.be/imsr8NrIAMs?t=34m52s
-                Intent intent = new Intent(context, DetailActivity.class);
-                intent.putExtra(Constants.SESSION_ID, session.id);
-                context.startActivity(intent);
-            }
-        });
+        viewHolder.bindToSessions(session, context, viewHolder.getAdapterPosition());
     }
 
 
     public static class SessionViewHolder extends RecyclerView.ViewHolder {
 
-        View mView;
         @Bind(R.id.session_start_time)
         TextView sessionStartTime;
         @Bind(R.id.session_duration)
@@ -53,18 +42,35 @@ public class SessionListAdapter extends FirebaseRecyclerAdapter<Session, Session
         @Bind(R.id.session_interval)
         TextView sessionInterval;
 
+        View mView;
+        Context mContext;
+        Session mSession;
+        int mPosition;
+
         public SessionViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             mView = itemView;
+            mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // TODO: 11/04/17 do not overload your adapter, send session click event to activity/fragment and handle there
+                    // TODO: 11/04/17 about properly on click, check https://youtu.be/imsr8NrIAMs?t=34m52s
+                    if (mPosition != RecyclerView.NO_POSITION){
+                        Intent intent = new Intent(mContext, DetailActivity.class);
+                        intent.putExtra(Constants.SESSION_ID, mSession.id);
+                        mContext.startActivity(intent);
+                    }
+                }
+            });
         }
 
-        void bindToSessions(Session session) {
+        void bindToSessions(Session session, Context context, int position) {
             sessionStartTime.setText(session.startTime);
             sessionDuration.setText("duration " + session.duration + "s");
             sessionInterval.setText("interval " + session.interval + "s");
+            mContext = context;
+            mSession = session;
         }
-
     }
-
 }
