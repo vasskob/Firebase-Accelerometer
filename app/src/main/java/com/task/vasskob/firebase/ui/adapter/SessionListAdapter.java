@@ -1,7 +1,10 @@
 package com.task.vasskob.firebase.ui.adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -12,36 +15,40 @@ import com.task.vasskob.firebase.model.Session;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 
 public class SessionListAdapter extends FirebaseRecyclerAdapter<Session, SessionListAdapter.SessionViewHolder> {
 
     private final OnSessionClickListener mOnSessionClickListener;
+    private final Context context;
 
 
-    public SessionListAdapter(Query ref, OnSessionClickListener onSessionClickListener) {
+    public SessionListAdapter(Context context, Query ref, OnSessionClickListener listener) {
         super(Session.class, R.layout.session_list_item, SessionViewHolder.class, ref);
-        this.mOnSessionClickListener = onSessionClickListener;
+        this.mOnSessionClickListener = listener;
+        this.context = context;
     }
 
     @Override
     protected void populateViewHolder(SessionViewHolder viewHolder, final Session session, int position) {
         viewHolder.bindToSessions(session);
-
-//        viewHolder.mView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // TODO: 11/04/17 do not overload your adapter, send session click event to activity/fragment and handle there
-//                // TODO: 11/04/17 about properly on click, check https://youtu.be/imsr8NrIAMs?t=34m52s
-//                Intent intent = new Intent(context, DetailActivity.class);
-//                intent.putExtra(Constants.SESSION_ID, session.id);
-//                context.startActivity(intent);
-//            }
-//        });
     }
 
+    @Override
+    public SessionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(context).inflate(R.layout.session_list_item, parent, false);
+        return new SessionViewHolder(itemView, mOnSessionClickListener);
+    }
 
-    public class SessionViewHolder extends RecyclerView.ViewHolder {
+    public static class SessionViewHolder extends RecyclerView.ViewHolder {
+
+        private final OnSessionClickListener mOnSessionClickListener;
+
+        @OnClick(R.id.sessions)
+        public void onSessionClick(View v) {
+            mOnSessionClickListener.onSessionClick(v);
+        }
 
         View mView;
         @Bind(R.id.session_start_time)
@@ -51,11 +58,11 @@ public class SessionListAdapter extends FirebaseRecyclerAdapter<Session, Session
         @Bind(R.id.session_interval)
         TextView sessionInterval;
 
-        public SessionViewHolder(View itemView) {
+        public SessionViewHolder(View itemView, OnSessionClickListener listener) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             mView = itemView;
-            mOnSessionClickListener.onSessionClick(itemView);
+            mOnSessionClickListener = listener;
         }
 
         void bindToSessions(Session session) {

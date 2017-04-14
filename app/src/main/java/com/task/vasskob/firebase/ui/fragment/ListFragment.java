@@ -23,7 +23,8 @@ public abstract class ListFragment extends Fragment {
     @Bind(R.id.recycle_view)
     RecyclerView recyclerView;
 
-    private FirebaseRecyclerAdapter mAdapter;
+    public FirebaseRecyclerAdapter mAdapter;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -44,23 +45,8 @@ public abstract class ListFragment extends Fragment {
         recyclerView.addItemDecoration(dividerItemDecoration);
 
         // Set up FirebaseRecyclerAdapter with the Query
-        init();
-    }
-
-    private void init() {
-
         mAdapter = getAdapter(getQuery(), getListener());
         recyclerView.setAdapter(mAdapter);
-
-//        ((SessionListAdapter)mAdapter).setOnClickListener(new OnSessionClickListener() {
-//            @Override
-//            public void onSessionClick(int position) {
-//
-//            }
-//        });
-
-
-
     }
 
     @Override
