@@ -94,6 +94,7 @@ public class MainActivity extends BaseActivity {
         notificationManager.cancelAll();
     }
 
+    @SuppressWarnings("unused")
     public void onEvent(ServiceIsRunningEvent event) {
         if (event.isRunning()) {
             fabIsOn();
